@@ -1,8 +1,11 @@
 import './App.css'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import SideBar from './components/sidebar'
 import NotePage from './components/notepage'
-import Header from './components/header' 
+import Header from './components/header'
+import { notebooksStore, fetchNotebooks } from './stores/notebooks'
+import { useMutationNotebook } from './hooks/use-mutation-notebook'
+import { useMutationPage } from './hooks/use-mutation-page'
 
 type Page = {
   id: string
@@ -17,44 +20,44 @@ type Notebook = {
 }
 
 function App() {
-  const [notebooks, setNotebooks] = useState<Notebook[]>([
-    {
-      id: 'nb-1',
-      title: 'Personal',
-      pages: [
-        { id: 'p-1', title: 'Welcome', content: 'Welcome to your Personal notebook!' },
-      ],
-    },
-    {
-      id: 'nb-2',
-      title: 'Work',
-      pages: [
-        { id: 'p-2', title: 'Meeting Notes', content: 'Meeting notes go here...' },
-      ],
-    },
-  ])
+  const [notebooks, setNotebooks] = useState<Notebook[]>([])
+  const [selectedNotebookId, setSelectedNotebookId] = useState<string | null>(null)
+  const [selectedPageId, setSelectedPageId] = useState<string | null>(null)
 
-  const [selectedNotebookId, setSelectedNotebookId] = useState<string | null>(notebooks[0].id)
-  const [selectedPageId, setSelectedPageId] = useState<string | null>(notebooks[0].pages[0].id)
+  const { createNotebook } = useMutationNotebook()
+  const { createPage, updatePage } = useMutationPage()
 
-  const addNotebook = () => {
-    const id = `nb-${Date.now()}`
-    setNotebooks((prev) => [...prev, { id, title: 'New Notebook', pages: [] }])
+  useEffect(() => {
+    fetchNotebooks()
+    const unsub = notebooksStore.listen(() => {
+      const data = notebooksStore.get()
+      setNotebooks(data)
+      if (!selectedNotebookId && data.length) {
+        setSelectedNotebookId(String(data[0].id))
+        const firstPage = data[0].pages && data[0].pages.length ? data[0].pages[0].id : null
+        setSelectedPageId(firstPage ?? null)
+      }
+    })
+    // initialize state
+    setNotebooks(notebooksStore.get())
+    return () => unsub()
+  }, [])
+
+  const addNotebook = async () => {
+    const created = await createNotebook('New Notebook')
+    setSelectedNotebookId(String(created.id))
   }
 
-  const addPage = (notebookId: string) => {
-    const id = `p-${Date.now()}`
-    setNotebooks((prev) =>
-      prev.map((nb) => (nb.id === notebookId ? { ...nb, pages: [...nb.pages, { id, title: 'New Page', content: '' }] } : nb)),
-    )
-    setSelectedNotebookId(notebookId)
-    setSelectedPageId(id)
+  const addPage = async (notebookId: string) => {
+    const created = await createPage(notebookId, 'New Page')
+    setSelectedNotebookId(String(notebookId))
+    setSelectedPageId(String(created.id))
   }
 
   const selectNotebook = (id: string) => {
     setSelectedNotebookId(id)
-    const nb = notebooks.find((n) => n.id === id)
-    setSelectedPageId(nb && nb.pages.length ? nb.pages[0].id : null)
+    const nb = notebooks.find((n) => String(n.id) === String(id))
+    setSelectedPageId(nb && nb.pages && nb.pages.length ? String(nb.pages[0].id) : null)
   }
 
   const selectPage = (notebookId: string, pageId: string) => {
@@ -62,18 +65,14 @@ function App() {
     setSelectedPageId(pageId)
   }
 
-  const updatePageContent = (pageId: string, content: string) => {
-    setNotebooks((prev) =>
-      prev.map((nb) => ({
-        ...nb,
-        pages: nb.pages.map((p) => (p.id === pageId ? { ...p, content } : p)),
-      })),
-    )
+  const updatePageContent = async (content: string) => {
+    if (!selectedNotebookId || !selectedPageId) return
+    await updatePage(selectedNotebookId, selectedPageId, { content })
   }
 
   const selectedPage = notebooks
-    .find((n) => n.id === selectedNotebookId)
-    ?.pages.find((p) => p.id === selectedPageId)
+    .find((n) => String(n.id) === String(selectedNotebookId))
+    ?.pages?.find((p) => String(p.id) === String(selectedPageId))
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
@@ -93,7 +92,7 @@ function App() {
         </div> 
 
         <div className="flex-1 overflow-auto">
-          <NotePage page={selectedPage} onUpdateContent={(content) => selectedPage && updatePageContent(selectedPage.id, content)} />
+          <NotePage page={selectedPage} onUpdateContent={updatePageContent} />
         </div>
       </div>
     </div>
