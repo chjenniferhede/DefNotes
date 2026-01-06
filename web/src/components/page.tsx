@@ -1,4 +1,4 @@
-type PageType = { id: string; title: string }
+import type { Page as PageType } from '../data/types'
 
 interface PageProps {
   page: PageType

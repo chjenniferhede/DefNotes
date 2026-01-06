@@ -1,5 +1,6 @@
 import './App.css'
 import { useState, useEffect } from 'react'
+import { useStore } from '@nanostores/react'
 import SideBar from './components/sidebar'
 import NotePage from './components/notepage'
 import Header from './components/header'
@@ -7,40 +8,35 @@ import { notebooksStore, fetchNotebooks } from './stores/notebooks'
 import { useMutationNotebook } from './hooks/use-mutation-notebook'
 import { useMutationPage } from './hooks/use-mutation-page'
 
-type Page = {
-  id: string
-  title: string
-  content: string
-}
-
-type Notebook = {
-  id: string
-  title: string
-  pages: Page[]
-}
-
 function App() {
-  const [notebooks, setNotebooks] = useState<Notebook[]>([])
+  const notebooks = useStore(notebooksStore)
   const [selectedNotebookId, setSelectedNotebookId] = useState<string | null>(null)
   const [selectedPageId, setSelectedPageId] = useState<string | null>(null)
 
   const { createNotebook } = useMutationNotebook()
   const { createPage, updatePage } = useMutationPage()
 
+  const { updateNotebook } = useMutationNotebook()
+
   useEffect(() => {
     fetchNotebooks()
-    const unsub = notebooksStore.listen(() => {
-      const data = notebooksStore.get()
-      setNotebooks(data)
+    // initialize selection after store updates
+    const unsub = notebooksStore.listen((data) => {
       if (!selectedNotebookId && data.length) {
         setSelectedNotebookId(String(data[0].id))
-        const firstPage = data[0].pages && data[0].pages.length ? data[0].pages[0].id : null
-        setSelectedPageId(firstPage ?? null)
+        const firstPage = data[0].pages && data[0].pages.length ? String(data[0].pages[0].id) : null
+        setSelectedPageId(firstPage)
       }
     })
-    // initialize state
-    setNotebooks(notebooksStore.get())
+    // set initial
+    const current = notebooksStore.get()
+    if (current && current.length && !selectedNotebookId) {
+      setSelectedNotebookId(String(current[0].id))
+      const firstPage = current[0].pages && current[0].pages.length ? String(current[0].pages[0].id) : null
+      setSelectedPageId(firstPage)
+    }
     return () => unsub()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const addNotebook = async () => {
@@ -56,7 +52,7 @@ function App() {
 
   const selectNotebook = (id: string) => {
     setSelectedNotebookId(id)
-    const nb = notebooks.find((n) => String(n.id) === String(id))
+    const nb = (notebooks || []).find((n: any) => String(n.id) === String(id))
     setSelectedPageId(nb && nb.pages && nb.pages.length ? String(nb.pages[0].id) : null)
   }
 
@@ -70,9 +66,9 @@ function App() {
     await updatePage(selectedNotebookId, selectedPageId, { content })
   }
 
-  const selectedPage = notebooks
-    .find((n) => String(n.id) === String(selectedNotebookId))
-    ?.pages?.find((p) => String(p.id) === String(selectedPageId))
+  const selectedPage = (notebooks || [])
+    .find((n: any) => String(n.id) === String(selectedNotebookId))
+    ?.pages?.find((p: any) => String(p.id) === String(selectedPageId))
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
@@ -81,18 +77,18 @@ function App() {
       <div className="flex flex-1">
         <div className="w-1/5 min-w-[220px] flex-shrink-0 border-r border-gray-200">
           <SideBar
-            notebooks={notebooks}
-            selectedNotebookId={selectedNotebookId}
-            selectedPageId={selectedPageId}
-            onSelectNotebook={selectNotebook}
-            onSelectPage={selectPage}
             onAddNotebook={addNotebook}
             onAddPage={addPage}
+            onSelectNotebook={selectNotebook}
+            onSelectPage={selectPage}
+            onEditNotebook={async (id: string, updates: Partial<any>) => {
+              await updateNotebook(id, updates)
+            }}
           />
-        </div> 
+        </div>
 
         <div className="flex-1 overflow-auto">
-          <NotePage page={selectedPage} onUpdateContent={updatePageContent} />
+          {selectedPage && <NotePage page={selectedPage} onUpdateContent={updatePageContent} />}
         </div>
       </div>
     </div>

@@ -1,39 +1,24 @@
-import { notebooksStore, fetchNotebooks } from '../stores/notebooks'
-import type { Notebook } from '../stores/notebooks'
+import * as api from '../data/api'
+import { fetchNotebooks, addNotebookToStore, removeNotebookFromStore } from '../stores/notebooks'
+import type { Notebook } from '../data/types'
 
 export function useMutationNotebook() {
-  const base = '/notebooks'
-
   async function createNotebook(title = 'New Notebook') {
-    const res = await fetch(base, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title }),
-    })
-    const created = await res.json()
-    // optimistic: append to store
-    const current = [...(notebooksStore.get() as Notebook[])]
-    current.push(created)
-    notebooksStore.set(current)
+    const created = await api.createNotebook({ title })
+    // optimistic append
+    addNotebookToStore(created as Notebook)
     return created
   }
 
   async function updateNotebook(id: number | string, updates: Partial<Notebook>) {
-    const res = await fetch(`${base}/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updates),
-    })
-    const updated = await res.json()
-    // refresh store
+    const updated = await api.updateNotebook(id, updates)
     await fetchNotebooks()
     return updated
   }
 
   async function deleteNotebook(id: number | string) {
-    await fetch(`${base}/${id}`, { method: 'DELETE' })
-    const current = (notebooksStore.get() as Notebook[]).filter((n) => String(n.id) !== String(id))
-    notebooksStore.set(current)
+    await api.deleteNotebook(id)
+    removeNotebookFromStore(id)
   }
 
   return { createNotebook, updateNotebook, deleteNotebook }

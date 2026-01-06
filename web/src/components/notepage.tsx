@@ -1,7 +1,7 @@
-type Page = { id: string; title: string; content: string }
+import type { Page as PageType } from '../data/types'
 
 interface NotePageProps {
-  page?: Page | null
+  page?: PageType | null
   onUpdateContent: (content: string) => void
 }
 

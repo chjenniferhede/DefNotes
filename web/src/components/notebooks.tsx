@@ -1,32 +1,27 @@
 import { useState } from 'react'
+import { useStore } from '@nanostores/react'
 import Notebook from './notebook'
-
-type PageType = { id: string; title: string }
-type NotebookType = { id: string; title: string; pages: PageType[] }
+import { notebooksStore } from '../stores/notebooks'
+import type { Notebook as NotebookType } from '../stores/notebooks'
 
 interface NotebooksProps {
-  notebooks: NotebookType[]
   selectedNotebookId?: string | null
   selectedPageId?: string | null
   onSelectNotebook: (id: string) => void
   onSelectPage: (notebookId: string, pageId: string) => void
   onAddNotebook: () => void
   onAddPage: (notebookId: string) => void
+  onEditNotebook: (id: string, updates: Partial<any>) => void
 }
 
-const Notebooks = ({ notebooks, selectedNotebookId, selectedPageId, onSelectNotebook, onSelectPage, onAddNotebook, onAddPage }: NotebooksProps) => {
+const Notebooks = ({ selectedNotebookId, selectedPageId, onSelectNotebook, onSelectPage, onEditNotebook, onAddPage }: NotebooksProps) => {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({})
+  const notebooks = useStore(notebooksStore) as NotebookType[]
 
   const toggle = (id: string) => setExpanded((s) => ({ ...s, [id]: !s[id] }))
 
   return (
-    <div>
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Notebooks</h2>
-        <button className="text-sm text-blue-600" onClick={onAddNotebook}>+ New</button>
-      </div>
-
-      <div className="overflow-auto mt-3">
+    <div className="overflow-auto mt-3">
         {notebooks.map((nb) => (
           <Notebook
             key={nb.id}
@@ -38,9 +33,9 @@ const Notebooks = ({ notebooks, selectedNotebookId, selectedPageId, onSelectNote
             selectedPageId={selectedPageId}
             selectedNotebookId={selectedNotebookId}
             onAddPage={onAddPage}
+            onEditNotebook={onEditNotebook}
           />
         ))}
-      </div>
     </div>
   )
 }

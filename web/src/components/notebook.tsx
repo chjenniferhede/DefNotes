@@ -1,7 +1,5 @@
 import Page from './page'
-
-type PageType = { id: string; title: string }
-type NotebookType = { id: string; title: string; pages: PageType[] }
+import type { Notebook as NotebookType, Page as PageType } from '../data/types'
 
 interface NotebookProps {
   notebook: NotebookType
@@ -12,13 +10,24 @@ interface NotebookProps {
   selectedPageId?: string | null
   selectedNotebookId?: string | null
   onAddPage: (notebookId: string) => void
+  onEditNotebook?: (id: string, updates: Partial<any>) => void
 }
 
-const Notebook = ({ notebook, expanded, onToggle, onSelectNotebook, onSelectPage, selectedPageId, selectedNotebookId, onAddPage }: NotebookProps) => {
+const Notebook = ({ notebook, expanded, onToggle, onSelectNotebook, onSelectPage, selectedPageId, selectedNotebookId, onAddPage, onEditNotebook }: NotebookProps) => {
+  const handleDoubleClick = () => {
+    const newTitle = window.prompt('Edit notebook title', notebook.title)
+    if (newTitle !== null && newTitle !== notebook.title && onEditNotebook) {
+      onEditNotebook(notebook.id, { title: newTitle })
+    }
+  }
   return (
     <div className="mb-3">
       <div className="flex items-center justify-between">
-        <button className={`text-left flex-1 ${selectedNotebookId === notebook.id ? 'font-bold' : ''}`} onClick={() => onSelectNotebook(notebook.id)}>
+        <button
+          className={`text-left flex-1 ${selectedNotebookId === notebook.id ? 'font-bold' : ''}`}
+          onClick={() => onSelectNotebook(notebook.id)}
+          onDoubleClick={handleDoubleClick}
+        >
           {notebook.title}
         </button>
         <div className="flex items-center space-x-2">
@@ -30,7 +39,7 @@ const Notebook = ({ notebook, expanded, onToggle, onSelectNotebook, onSelectPage
       {expanded && (
         <ul className="mt-2 ml-2 space-y-1">
           {notebook.pages.length === 0 && <li className="text-sm text-gray-400">(no pages)</li>}
-          {notebook.pages.map((p) => (
+          {notebook.pages.map((p: PageType) => (
             <Page key={p.id} page={p} isSelected={selectedPageId === p.id} onSelect={(pageId) => onSelectPage(notebook.id, pageId)} />
           ))}
         </ul>

@@ -1,33 +1,20 @@
 import Notebooks from './notebooks'
 
-type Page = { id: string; title: string }
-type Notebook = { id: string; title: string; pages: Page[] }
-
-interface SideBarProps {
-  notebooks: Notebook[]
-  selectedNotebookId?: string | null
-  selectedPageId?: string | null
-  onSelectNotebook: (id: string) => void
-  onSelectPage: (notebookId: string, pageId: string) => void
-  onAddNotebook: () => void
-  onAddPage: (notebookId: string) => void
-}
-
-const SideBar = ({ notebooks, selectedNotebookId, selectedPageId, onSelectNotebook, onSelectPage, onAddNotebook, onAddPage }: SideBarProps) => {
+export default function SideBar({ onAddNotebook, onAddPage, onSelectNotebook, onSelectPage, onEditNotebook }: any) {
   return (
     <div className="sidebar h-full min-h-dvh flex flex-col p-4">
+      <div className="flex items-center justify-between p-2">
+        <h3 className="font-semibold">Notebooks</h3>
+        <button className="px-2 py-1 bg-gray-100 rounded" onClick={onAddNotebook}>New</button>
+      </div>
       <Notebooks
-        notebooks={notebooks}
-        selectedNotebookId={selectedNotebookId}
-        selectedPageId={selectedPageId}
-        onSelectNotebook={onSelectNotebook}
-        onSelectPage={onSelectPage}
         onAddNotebook={onAddNotebook}
         onAddPage={onAddPage}
+        onSelectNotebook={onSelectNotebook}
+        onSelectPage={onSelectPage}
+        onEditNotebook={onEditNotebook}
       />
     </div>
   )
 }
-
-export default SideBar
 
