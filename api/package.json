@@ -22,6 +22,7 @@
     "crypto-sha": "^2.1.1",
     "drizzle-orm": "^0.45.1",
     "hono": "^4.11.3"
+    ,"zod": "^3.22.2"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",

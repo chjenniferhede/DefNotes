@@ -2,14 +2,43 @@ import { Hono } from "hono";
 import { db } from "../db/index.js";
 import { notebook, page } from "../db/schema.js";
 import { eq, desc } from "drizzle-orm";
+import { z } from "zod";
 
 const app = new Hono();
+
+const notebookCreateSchema = z.object({
+  title: z.string().min(1).optional(),
+});
+
+const notebookUpdateSchema = z.object({
+  title: z.string().min(1).optional(),
+});
+
+const pageCreateSchema = z.object({
+  title: z.string().min(1).optional(),
+  content: z.string().optional(),
+});
+
+const pageUpdateSchema = z.object({
+  title: z.string().optional(),
+  content: z.string().optional(),
+});
 
 // --- Notebook routes ---
 // List all notebooks
 app.get("/", async (c) => {
+  const includePages = c.req.query("includePages");
   const nbs = await db.select().from(notebook);
-  return c.json(nbs);
+
+  if (!includePages) return c.json(nbs);
+
+  // include pages for each notebook
+  const results = [] as any[];
+  for (const nb of nbs) {
+    const pages = await db.select().from(page).where(eq(page.notebookId, nb.id));
+    results.push({ ...nb, pages });
+  }
+  return c.json(results);
 });
 
 // Get single notebook
@@ -22,12 +51,25 @@ app.get("/:id", async (c) => {
 
 // Create notebook
 app.post("/", async (c) => {
-  const body = await c.req.json();
-  const title = body.title ?? "Untitled";
+  let body: any;
+  try {
+    body = await c.req.json();
+  } catch (err) {
+    return c.json({ error: "Invalid JSON" }, 400);
+  }
+
+  const parsed = notebookCreateSchema.safeParse(body);
+  if (!parsed.success) {
+    return c.json({ error: parsed.error.errors }, 400);
+  }
+
+  const title = parsed.data.title ?? "Untitled";
   const now = new Date();
-  const result = await db
-    .insert(notebook)
-    .values({ title, createDate: now, updatedDate: now } as any);
+  const result = await db.insert(notebook).values({
+    title,
+    createDate: now,
+    updatedDate: now,
+  } as any);
   // result may not contain inserted id depending on driver; select last row
   const created = await db
     .select()
@@ -40,8 +82,19 @@ app.post("/", async (c) => {
 // Update notebook
 app.put("/:id", async (c) => {
   const id = Number(c.req.param("id"));
-  const body = await c.req.json();
-  const title = body.title;
+  let body: any;
+  try {
+    body = await c.req.json();
+  } catch (err) {
+    return c.json({ error: "Invalid JSON" }, 400);
+  }
+
+  const parsed = notebookUpdateSchema.safeParse(body);
+  if (!parsed.success) {
+    return c.json({ error: parsed.error.errors }, 400);
+  }
+
+  const title = parsed.data.title;
   await db
     .update(notebook)
     .set({ title, updatedDate: new Date() })
@@ -71,9 +124,20 @@ app.get("/:id/pages", async (c) => {
 // Create a page for a notebook
 app.post("/:id/pages", async (c) => {
   const notebookId = Number(c.req.param("id"));
-  const body = await c.req.json();
-  const title = body.title ?? "Untitled";
-  const content = body.content ?? "";
+  let body: any;
+  try {
+    body = await c.req.json();
+  } catch (err) {
+    return c.json({ error: "Invalid JSON" }, 400);
+  }
+
+  const parsed = pageCreateSchema.safeParse(body);
+  if (!parsed.success) {
+    return c.json({ error: parsed.error.errors }, 400);
+  }
+
+  const title = parsed.data.title ?? "Untitled";
+  const content = parsed.data.content ?? "";
   const now = new Date();
   await db.insert(page).values({
     notebookId,
@@ -97,14 +161,31 @@ app.get("/:id/pages/:pageId", async (c) => {
 // Update a page
 app.put("/:id/pages/:pageId", async (c) => {
   const pageId = Number(c.req.param("pageId"));
-  const body = await c.req.json();
+  let body: any;
+  try {
+    body = await c.req.json();
+  } catch (err) {
+    return c.json({ error: "Invalid JSON" }, 400);
+  }
+
+  const parsed = pageUpdateSchema.safeParse(body);
+  if (!parsed.success) {
+    return c.json({ error: parsed.error.errors }, 400);
+  }
+
   const fields: any = {};
-  if (body.title !== undefined) fields.title = body.title;
-  if (body.content !== undefined) fields.content = body.content;
-  fields.updatedDate = Date.now();
-  await db.update(page).set(fields).where(eq(page.id, pageId));
-  const [updated] = await db.select().from(page).where(eq(page.id, pageId));
-  return c.json(updated);
+  if (parsed.data.title !== undefined) fields.title = parsed.data.title;
+  if (parsed.data.content !== undefined) fields.content = parsed.data.content;
+  fields.updatedDate = new Date();
+
+  try {
+    await db.update(page).set(fields).where(eq(page.id, pageId));
+    const [updated] = await db.select().from(page).where(eq(page.id, pageId));
+    return c.json(updated);
+  } catch (err) {
+    console.error("DB update error for page", pageId, err);
+    return c.json({ error: "Internal server error" }, 500);
+  }
 });
 
 // Delete a page

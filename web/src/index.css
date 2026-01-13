@@ -25,4 +25,6 @@ button {
   cursor: pointer;
 }
 
-h1 { @apply text-4xl font-semibold; }
+h1 {
+  @apply text-4xl font-semibold;
+}
