@@ -34,19 +34,13 @@ const Notebook = ({
     <div className="mb-3">
       <div className="flex items-center justify-between">
         <button
-          className={`text-left flex-1 ${selectedNotebookId === notebook.id ? "font-bold" : ""}`}
-          onClick={() => onSelectNotebook(notebook.id)}
+          className={`text-left flex-1 px-1 py-1 rounded ${expanded ? "bg-gray-200 text-gray-700" : ""} ${selectedNotebookId === notebook.id ? "font-bold" : ""}`}
+          onClick={() => { onToggle(notebook.id); onSelectNotebook(notebook.id); }}
           onDoubleClick={handleDoubleClick}
         >
           {notebook.title}
         </button>
         <div className="flex items-center space-x-2">
-          <button
-            className="text-xs text-gray-500"
-            onClick={() => onToggle(notebook.id)}
-          >
-            {expanded ? "▾" : "▸"}
-          </button>
           <button
             className="text-xs text-green-600"
             onClick={() => onAddPage(notebook.id)}
@@ -57,7 +51,7 @@ const Notebook = ({
       </div>
 
       {expanded && (
-        <ul className="mt-2 ml-2 space-y-1">
+        <ul className="mt-2 ml-2 space-y-1 bg-gray-50 p-2 rounded">
           {notebook.pages.length === 0 && (
             <li className="text-sm text-gray-400">(no pages)</li>
           )}
@@ -66,6 +60,7 @@ const Notebook = ({
               key={p.id}
               page={p}
               isSelected={selectedPageId === p.id}
+              notebookExpanded={expanded}
               onSelect={(pageId) => onSelectPage(notebook.id, pageId)}
             />
           ))}

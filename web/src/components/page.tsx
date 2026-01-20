@@ -4,13 +4,14 @@ interface PageProps {
   page: PageType;
   isSelected?: boolean;
   onSelect: (pageId: string) => void;
+  notebookExpanded?: boolean;
 }
 
-const Page = ({ page, isSelected, onSelect }: PageProps) => {
+const Page = ({ page, isSelected, onSelect, notebookExpanded }: PageProps) => {
   return (
     <li>
       <button
-        className={`text-sm text-left w-full ${isSelected ? "text-blue-600 font-medium" : "text-gray-700"}`}
+        className={`text-sm text-left w-full ${isSelected ? "text-blue-600 font-medium" : (notebookExpanded ? "text-gray-500" : "text-gray-700")}`}
         onClick={() => onSelect(page.id)}
       >
         {page.title}

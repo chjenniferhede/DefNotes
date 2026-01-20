@@ -3,7 +3,7 @@ import { cors } from "hono/cors";
 import notebookRoutes from "./routes/notebook.js";
 import glossaryRoutes from "./routes/glossary.js";
 import { logger } from "hono/logger";
-
+//import "dotenv/config";
 
 const app = new Hono();
 

@@ -1,5 +1,4 @@
 import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
-import { content } from "../../../web/tailwind.config.cjs";
 
 export const notebook = sqliteTable("notebook", {
   id: integer("id").primaryKey({ autoIncrement: true }),

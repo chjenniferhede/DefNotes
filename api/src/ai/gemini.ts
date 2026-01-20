@@ -1,6 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({});
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 // Summarizes term contexts using Gemini AI
 export async function summarizeTermContexts(
@@ -13,13 +13,17 @@ export async function summarizeTermContexts(
     You are organizing the user's notes.
     Do NOT add external knowledge.
     Do NOT invent facts.
+    Use the given entries only.
+    Present in the format of: 
+    <Term>
+    - Bullet point 1
+    - Bullet point 2
+    ... 
 
     Term: ${term}
 
     Contexts:
     ${excerpts.map((e) => `- ${e}`).join("\n")}
-
-    Organize these contexts into concise bullet points.
     `;
 
   // Call Gemini AI to generate the summary

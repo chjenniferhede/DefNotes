@@ -3,6 +3,8 @@ import { db } from "../db/index.js";
 import { notebook, page } from "../db/schema.js";
 import { eq, desc } from "drizzle-orm";
 import { z } from "zod";
+import { extractAndSaveTerms } from "../lib/terms.js";
+import { maybeRunGlossaryUpdates } from "../lib/glossary.js";
 
 const app = new Hono();
 
@@ -17,11 +19,13 @@ const notebookUpdateSchema = z.object({
 const pageCreateSchema = z.object({
   title: z.string().min(1).optional(),
   content: z.string().optional(),
+  explicitSave: z.boolean().optional(),
 });
 
 const pageUpdateSchema = z.object({
   title: z.string().optional(),
   content: z.string().optional(),
+  explicitSave: z.boolean().optional(),
 });
 
 // --- Notebook routes ---
@@ -147,6 +151,18 @@ app.post("/:id/pages", async (c) => {
     updatedDate: now,
   } as any);
   const created = await db.select().from(page).orderBy(desc(page.id)).limit(1);
+  try {
+    if (created && created[0]) {
+      // extract terms and save mentions for this notebook/page
+      const changes = await extractAndSaveTerms(db, notebookId, created[0].id, created[0].content);
+      // if this was an explicit save, trigger glossary updates (do not block response)
+      if (parsed.data.explicitSave) {
+        void maybeRunGlossaryUpdates(db, changes);
+      }
+    }
+  } catch (err) {
+    console.error("Error extracting/saving terms after page create", err);
+  }
   return c.json(created[0]);
 });
 
@@ -161,6 +177,7 @@ app.get("/:id/pages/:pageId", async (c) => {
 // Update a page
 app.put("/:id/pages/:pageId", async (c) => {
   const pageId = Number(c.req.param("pageId"));
+  const notebookId = Number(c.req.param("id"));
   let body: any;
   try {
     body = await c.req.json();
@@ -181,6 +198,16 @@ app.put("/:id/pages/:pageId", async (c) => {
   try {
     await db.update(page).set(fields).where(eq(page.id, pageId));
     const [updated] = await db.select().from(page).where(eq(page.id, pageId));
+    try {
+      if (updated) {
+        const changes = await extractAndSaveTerms(db, notebookId, updated.id, updated.content);
+        if (parsed.data.explicitSave) {
+          void maybeRunGlossaryUpdates(db, changes);
+        }
+      }
+    } catch (err) {
+      console.error("Error extracting/saving terms after page update", err);
+    }
     return c.json(updated);
   } catch (err) {
     console.error("DB update error for page", pageId, err);
