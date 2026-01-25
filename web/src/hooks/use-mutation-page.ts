@@ -13,12 +13,16 @@ export function useMutationPage() {
   async function updatePage(
     notebookId: number | string,
     pageId: number | string,
-    updates: Partial<Page>,
+    updates: Partial<Page> & { explicitSave?: boolean },
   ) {
     const updated = await api.updatePage(notebookId, pageId, updates);
     // optimistic local update so UI shows saved content immediately
     try {
-      updatePageInStore(notebookId, pageId, updates);
+      // avoid persisting `explicitSave` into the page object stored locally
+      // strip explicitSave before updating local store
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { explicitSave, ...pageUpdates } = updates as any;
+      updatePageInStore(notebookId, pageId, pageUpdates);
     } catch (e) {
       console.error("updatePageInStore", e);
     }

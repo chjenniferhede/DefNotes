@@ -50,12 +50,8 @@
           "name": "glossary_entry_notebook_id_notebook_id_fk",
           "tableFrom": "glossary_entry",
           "tableTo": "notebook",
-          "columnsFrom": [
-            "notebook_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["notebook_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -63,12 +59,8 @@
           "name": "glossary_entry_term_id_terms_id_fk",
           "tableFrom": "glossary_entry",
           "tableTo": "terms",
-          "columnsFrom": [
-            "term_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["term_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -115,12 +107,8 @@
           "name": "mentions_term_id_terms_id_fk",
           "tableFrom": "mentions",
           "tableTo": "terms",
-          "columnsFrom": [
-            "term_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["term_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -228,12 +216,8 @@
           "name": "page_notebook_id_notebook_id_fk",
           "tableFrom": "page",
           "tableTo": "notebook",
-          "columnsFrom": [
-            "notebook_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["notebook_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -273,12 +257,8 @@
           "name": "terms_notebook_id_notebook_id_fk",
           "tableFrom": "terms",
           "tableTo": "notebook",
-          "columnsFrom": [
-            "notebook_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["notebook_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }

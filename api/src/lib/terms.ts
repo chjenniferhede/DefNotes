@@ -16,22 +16,46 @@ export function extractTermsFromContent(content: string): string[] {
 }
 
 // Create or get existing term, return its ID
-export async function createOrGetTerm(db: any, notebookId: number, term: string): Promise<number> {
-  const [existing] = await db.select().from(terms).where(eq(terms.notebookId, notebookId), eq(terms.term, term));
+export async function createOrGetTerm(
+  db: any,
+  notebookId: number,
+  term: string,
+): Promise<number> {
+  const [existing] = await db
+    .select()
+    .from(terms)
+    .where(eq(terms.notebookId, notebookId), eq(terms.term, term));
   if (existing) return existing.id;
 
   await db.insert(terms).values({ notebookId, term } as any);
-  const created = await db.select().from(terms).orderBy(desc(terms.id)).limit(1);
+  const created = await db
+    .select()
+    .from(terms)
+    .orderBy(desc(terms.id))
+    .limit(1);
   return created[0].id;
 }
 
 // Add a mention snippet for a term; returns the updated excerpts JSON and whether it changed
-export async function addMentionForTerm(db: any, termId: number, snippet: string): Promise<{ excerptsJson: string; changed: boolean }> {
-  const [m] = await db.select().from(mentions).where(eq(mentions.termId, termId));
+export async function addMentionForTerm(
+  db: any,
+  termId: number,
+  snippet: string,
+): Promise<{ excerptsJson: string; changed: boolean }> {
+  const [m] = await db
+    .select()
+    .from(mentions)
+    .where(eq(mentions.termId, termId));
   const now = new Date();
   if (!m) {
     const excerpts = [snippet];
-    await db.insert(mentions).values({ termId, excerptsJson: JSON.stringify(excerpts), updatedAt: now } as any);
+    await db
+      .insert(mentions)
+      .values({
+        termId,
+        excerptsJson: JSON.stringify(excerpts),
+        updatedAt: now,
+      } as any);
     return { excerptsJson: JSON.stringify(excerpts), changed: true };
   }
 
@@ -44,7 +68,10 @@ export async function addMentionForTerm(db: any, termId: number, snippet: string
 
   if (excerpts.includes(snippet)) {
     // update timestamp only
-    await db.update(mentions).set({ updatedAt: now }).where(eq(mentions.id, m.id));
+    await db
+      .update(mentions)
+      .set({ updatedAt: now })
+      .where(eq(mentions.id, m.id));
     return { excerptsJson: m.excerptsJson, changed: false };
   }
 
@@ -52,7 +79,10 @@ export async function addMentionForTerm(db: any, termId: number, snippet: string
   excerpts.unshift(snippet);
   excerpts = excerpts.slice(0, 10);
   const newJson = JSON.stringify(excerpts);
-  await db.update(mentions).set({ excerptsJson: newJson, updatedAt: now }).where(eq(mentions.id, m.id));
+  await db
+    .update(mentions)
+    .set({ excerptsJson: newJson, updatedAt: now })
+    .where(eq(mentions.id, m.id));
   return { excerptsJson: newJson, changed: true };
 }
 
@@ -63,11 +93,27 @@ export async function extractAndSaveTerms(
   notebookId: number,
   pageId: number,
   content: string,
-): Promise<Array<{ termId: number; term: string; notebookId: number; excerptsJson: string; excerptsHash: string; changed: boolean }>> {
+): Promise<
+  Array<{
+    termId: number;
+    term: string;
+    notebookId: number;
+    excerptsJson: string;
+    excerptsHash: string;
+    changed: boolean;
+  }>
+> {
   const termsFound = extractTermsFromContent(content);
   if (!termsFound.length) return [];
 
-  const results: Array<{ termId: number; term: string; notebookId: number; excerptsJson: string; excerptsHash: string; changed: boolean }> = [];
+  const results: Array<{
+    termId: number;
+    term: string;
+    notebookId: number;
+    excerptsJson: string;
+    excerptsHash: string;
+    changed: boolean;
+  }> = [];
 
   for (const t of termsFound) {
     try {
@@ -77,13 +123,30 @@ export async function extractAndSaveTerms(
       const idx = content.toLowerCase().indexOf(("defn " + t).toLowerCase());
       const radius = 60;
       const start = Math.max(0, idx - radius);
-      const end = Math.min(content.length, idx + ("defn ".length + t.length) + radius);
+      const end = Math.min(
+        content.length,
+        idx + ("defn ".length + t.length) + radius,
+      );
       const snippet = content.substring(start, end).trim();
 
-      const { excerptsJson, changed } = await addMentionForTerm(db, termId, snippet);
+      const { excerptsJson, changed } = await addMentionForTerm(
+        db,
+        termId,
+        snippet,
+      );
 
-      const hash = crypto.createHash("sha256").update(excerptsJson).digest("hex");
-      results.push({ termId, term: t, notebookId, excerptsJson, excerptsHash: hash, changed });
+      const hash = crypto
+        .createHash("sha256")
+        .update(excerptsJson)
+        .digest("hex");
+      results.push({
+        termId,
+        term: t,
+        notebookId,
+        excerptsJson,
+        excerptsHash: hash,
+        changed,
+      });
     } catch (err) {
       // don't let one failure stop the rest
       console.error("extractAndSaveTerms error for term", t, err);

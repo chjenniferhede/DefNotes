@@ -9,14 +9,14 @@ const app = new Hono();
 
 // middleware to allow requests from any origin
 app.use(
-    "/*",
-    cors({
-      origin: (origin) => origin, // Allow any origin
-      credentials: true, // Allow credentials
-      allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-      allowHeaders: ["Content-Type", "Authorization"],
-      exposeHeaders: ["Set-Cookie"],
-    }),
+  "/*",
+  cors({
+    origin: (origin) => origin, // Allow any origin
+    credentials: true, // Allow credentials
+    allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowHeaders: ["Content-Type", "Authorization"],
+    exposeHeaders: ["Set-Cookie"],
+  }),
 );
 app.use(logger());
 

@@ -1,14 +1,12 @@
 import Page from "./page";
 import type { Notebook as NotebookType, Page as PageType } from "../data/types";
+import { useStore } from "@nanostores/react";
+import { currentNotebookIdStore } from "../lib/store";
 
 interface NotebookProps {
   notebook: NotebookType;
   expanded?: boolean;
   onToggle: (id: string) => void;
-  onSelectNotebook: (id: string) => void;
-  onSelectPage: (notebookId: string, pageId: string) => void;
-  selectedPageId?: string | null;
-  selectedNotebookId?: string | null;
   onAddPage: (notebookId: string) => void;
   onEditNotebook?: (id: string, updates: Partial<any>) => void;
 }
@@ -17,25 +15,25 @@ const Notebook = ({
   notebook,
   expanded,
   onToggle,
-  onSelectNotebook,
-  onSelectPage,
-  selectedPageId,
-  selectedNotebookId,
   onAddPage,
   onEditNotebook,
 }: NotebookProps) => {
+  const currentNotebookId = useStore(currentNotebookIdStore);
   const handleDoubleClick = () => {
     const newTitle = window.prompt("Edit notebook title", notebook.title);
     if (newTitle !== null && newTitle !== notebook.title && onEditNotebook) {
       onEditNotebook(notebook.id, { title: newTitle });
     }
   };
+
+  const isSelected = String(currentNotebookId) === String(notebook.id);
+
   return (
     <div className="mb-3">
       <div className="flex items-center justify-between">
         <button
-          className={`text-left flex-1 px-1 py-1 rounded ${expanded ? "bg-gray-200 text-gray-700" : ""} ${selectedNotebookId === notebook.id ? "font-bold" : ""}`}
-          onClick={() => { onToggle(notebook.id); onSelectNotebook(notebook.id); }}
+          className={`text-left flex-1 px-1 py-1 rounded ${expanded ? "bg-gray-200 text-gray-700" : ""} ${isSelected ? "font-bold" : ""}`}
+          onClick={() => { onToggle(notebook.id); currentNotebookIdStore.set(String(notebook.id)); }}
           onDoubleClick={handleDoubleClick}
         >
           {notebook.title}
@@ -59,9 +57,8 @@ const Notebook = ({
             <Page
               key={p.id}
               page={p}
-              isSelected={selectedPageId === p.id}
               notebookExpanded={expanded}
-              onSelect={(pageId) => onSelectPage(notebook.id, pageId)}
+              notebookId={notebook.id}
             />
           ))}
         </ul>

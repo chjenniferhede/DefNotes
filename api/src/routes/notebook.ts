@@ -39,7 +39,10 @@ app.get("/", async (c) => {
   // include pages for each notebook
   const results = [] as any[];
   for (const nb of nbs) {
-    const pages = await db.select().from(page).where(eq(page.notebookId, nb.id));
+    const pages = await db
+      .select()
+      .from(page)
+      .where(eq(page.notebookId, nb.id));
     results.push({ ...nb, pages });
   }
   return c.json(results);
@@ -152,11 +155,19 @@ app.post("/:id/pages", async (c) => {
   } as any);
   const created = await db.select().from(page).orderBy(desc(page.id)).limit(1);
   try {
+    // if created page exists, extract terms and save mentions
     if (created && created[0]) {
       // extract terms and save mentions for this notebook/page
-      const changes = await extractAndSaveTerms(db, notebookId, created[0].id, created[0].content);
+      const changes = await extractAndSaveTerms(
+        db,
+        notebookId,
+        created[0].id,
+        created[0].content,
+      );
       // if this was an explicit save, trigger glossary updates (do not block response)
+      console.log("Page created with explicitSave:", parsed.data.explicitSave);
       if (parsed.data.explicitSave) {
+        console.log("Triggering glossary updates for new page");
         void maybeRunGlossaryUpdates(db, changes);
       }
     }
@@ -200,8 +211,15 @@ app.put("/:id/pages/:pageId", async (c) => {
     const [updated] = await db.select().from(page).where(eq(page.id, pageId));
     try {
       if (updated) {
-        const changes = await extractAndSaveTerms(db, notebookId, updated.id, updated.content);
+        console.log("Extracting and saving terms after page update", pageId);
+        const changes = await extractAndSaveTerms(
+          db,
+          notebookId,
+          updated.id,
+          updated.content,
+        );
         if (parsed.data.explicitSave) {
+          console.log("Triggering maybe Run Glossary Updates");
           void maybeRunGlossaryUpdates(db, changes);
         }
       }

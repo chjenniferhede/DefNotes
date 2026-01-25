@@ -1,8 +1,22 @@
-import { atom } from "nanostores";
-import type { Notebook } from "../data/types";
+import { atom, computed } from "nanostores";
+import type { Notebook, Page } from "../data/types";
 import * as api from "../data/api";
 
 export const notebooksStore = atom<Notebook[]>([]);
+
+// selection stores
+export const currentNotebookIdStore = atom<string | null>(null);
+export const currentPageIdStore = atom<string | null>(null);
+
+export const currentNotebookStore = computed(
+  [notebooksStore, currentNotebookIdStore],
+  (notebooks, nbId) => notebooks.find((n) => String(n.id) === String(nbId)) ?? null,
+);
+
+export const currentPageStore = computed(
+  [currentNotebookStore, currentPageIdStore],
+  (notebook, pageId) => notebook?.pages?.find((p: Page) => String(p.id) === String(pageId)) ?? null,
+);
 
 export async function fetchNotebooks() {
   try {

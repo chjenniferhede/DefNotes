@@ -9,6 +9,7 @@ export async function summarizeTermContexts(
 ): Promise<string> {
   if (excerpts.length === 0) return "";
 
+  console.log("Generating summary for term:", term);
   const prompt = `
     You are organizing the user's notes.
     Do NOT add external knowledge.

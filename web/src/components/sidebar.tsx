@@ -1,12 +1,6 @@
 import Notebooks from "./notebooks";
 
-export default function SideBar({
-  onAddNotebook,
-  onAddPage,
-  onSelectNotebook,
-  onSelectPage,
-  onEditNotebook,
-}: any) {
+export default function SideBar({ onAddNotebook, onAddPage, onEditNotebook }: any) {
   return (
     <div className="sidebar h-full min-h-dvh flex flex-col p-4">
       <div className="flex items-center justify-between p-2">
@@ -21,8 +15,6 @@ export default function SideBar({
       <Notebooks
         onAddNotebook={onAddNotebook}
         onAddPage={onAddPage}
-        onSelectNotebook={onSelectNotebook}
-        onSelectPage={onSelectPage}
         onEditNotebook={onEditNotebook}
       />
     </div>

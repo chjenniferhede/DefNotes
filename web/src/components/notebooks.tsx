@@ -5,23 +5,12 @@ import { notebooksStore } from "../stores/notebooks";
 import type { Notebook as NotebookType } from "../stores/notebooks";
 
 interface NotebooksProps {
-  selectedNotebookId?: string | null;
-  selectedPageId?: string | null;
-  onSelectNotebook: (id: string) => void;
-  onSelectPage: (notebookId: string, pageId: string) => void;
   onAddNotebook: () => void;
   onAddPage: (notebookId: string) => void;
   onEditNotebook: (id: string, updates: Partial<any>) => void;
 }
 
-const Notebooks = ({
-  selectedNotebookId,
-  selectedPageId,
-  onSelectNotebook,
-  onSelectPage,
-  onEditNotebook,
-  onAddPage,
-}: NotebooksProps) => {
+const Notebooks = ({ onAddPage, onEditNotebook }: NotebooksProps) => {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const notebooks = useStore(notebooksStore) as NotebookType[];
 
@@ -35,10 +24,6 @@ const Notebooks = ({
           notebook={nb}
           expanded={!!expanded[nb.id]}
           onToggle={toggle}
-          onSelectNotebook={onSelectNotebook}
-          onSelectPage={onSelectPage}
-          selectedPageId={selectedPageId}
-          selectedNotebookId={selectedNotebookId}
           onAddPage={onAddPage}
           onEditNotebook={onEditNotebook}
         />

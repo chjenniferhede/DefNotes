@@ -4,5 +4,5 @@ export type Notebook = { id: string; title: string; pages: Page[] };
 export type CreateNotebookPayload = { title: string };
 export type UpdateNotebookPayload = Partial<Notebook>;
 
-export type CreatePagePayload = { title: string };
-export type UpdatePagePayload = Partial<Page>;
+export type CreatePagePayload = { title: string; content?: string; explicitSave?: boolean };
+export type UpdatePagePayload = Partial<Page> & { explicitSave?: boolean };

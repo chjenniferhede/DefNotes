@@ -1,14 +1,13 @@
 import type { Config } from "drizzle-kit";
 
 export default {
-    dialect: "sqlite",
+  dialect: "sqlite",
 
-    schema: "./src/db/schema.ts",
+  schema: "./src/db/schema.ts",
 
-    out: "./drizzle",
+  out: "./drizzle",
 
-    dbCredentials: {
-        url: "./sqlite.db"
-    }
-
+  dbCredentials: {
+    url: "./sqlite.db",
+  },
 } satisfies Config;
