@@ -1,10 +1,14 @@
 import { db } from "../db/index.js";
 import { notebook, page } from "../db/schema.js";
 import { eq, desc } from "drizzle-orm";
-import { notebookCreateSchema, notebookUpdateSchema, pageCreateSchema, pageUpdateSchema } from "../lib/validators.js";
+import {
+  notebookCreateSchema,
+  notebookUpdateSchema,
+  pageCreateSchema,
+  pageUpdateSchema,
+} from "../lib/validators.js";
 import { collectTermChanges } from "../domain/terms.js";
 import { maybeRunGlossaryUpdates } from "../domain/glossary-update.js";
-
 
 export async function listNotebooks(c: any) {
   const includePages = c.req.query("includePages");

@@ -36,8 +36,8 @@ export async function getEntry(c: any) {
     }
 
     const mentionRow = await getMentionsByTermId(termId);
-    const excerpts = safeParseExcerpts(mentionRow?.excerptsJson);
-    const sourceHash = await sha256(JSON.stringify(excerpts));
+    const excerptEntries = safeParseExcerpts(mentionRow?.excerptsJson);
+    const sourceHash = await sha256(JSON.stringify(excerptEntries));
 
     const cached = await getGlossaryEntry(termId, notebookId);
 
@@ -53,12 +53,13 @@ export async function getEntry(c: any) {
         term: termRow.term,
         sourceHash,
         cached: true,
-        excerptsCount: excerpts.length,
+        excerptsCount: excerptEntries.length,
         content: cached.content,
       });
     }
 
-    const content = await summarizeTermContexts(termRow.term, excerpts);
+    const excerptSnippets = excerptEntries.map((e) => e.snippet);
+    const content = await summarizeTermContexts(termRow.term, excerptSnippets);
 
     if (!cached) {
       await insertGlossaryEntry(notebookId, termId, sourceHash, content);
@@ -72,7 +73,7 @@ export async function getEntry(c: any) {
       term: termRow.term,
       sourceHash,
       cached: false,
-      excerptsCount: excerpts.length,
+      excerptsCount: excerptEntries.length,
       content,
     });
   } catch (err) {
@@ -96,10 +97,11 @@ export async function refreshEntry(c: any) {
     }
 
     const mentionRow = await getMentionsByTermId(termId);
-    const excerpts = safeParseExcerpts(mentionRow?.excerptsJson);
-    const sourceHash = await sha256(JSON.stringify(excerpts));
+    const excerptEntries = safeParseExcerpts(mentionRow?.excerptsJson);
+    const sourceHash = await sha256(JSON.stringify(excerptEntries));
 
-    const content = await summarizeTermContexts(termRow.term, excerpts);
+    const excerptSnippets = excerptEntries.map((e) => e.snippet);
+    const content = await summarizeTermContexts(termRow.term, excerptSnippets);
 
     const existing = await getGlossaryEntry(termId, notebookId);
     if (!existing) {
@@ -114,7 +116,7 @@ export async function refreshEntry(c: any) {
       term: termRow.term,
       sourceHash,
       forced: true,
-      excerptsCount: excerpts.length,
+      excerptsCount: excerptEntries.length,
       content,
     });
   } catch (err) {

@@ -25,7 +25,6 @@ export async function maybeRunGlossaryUpdates(
   for (const ch of changes) {
     console.log("Enter the loop const ch of changes for termId:", ch.termId);
     try {
-
       //if (!ch.changed) continue;
       console.log("Checking glossary entry, ch.changed =", ch.changed);
       const entry = await getGlossaryEntry(ch.termId, ch.notebookId);
@@ -90,14 +89,14 @@ async function processGlossaryUpdate(
   excerptsHash: string,
 ) {
   try {
-    let excerpts: string[] = [];
+    let excerptEntries = [] as any[];
     try {
-      excerpts = safeParseExcerpts(excerptsJson as string);
+      excerptEntries = safeParseExcerpts(excerptsJson as string);
     } catch (err) {
-      excerpts = [];
+      excerptEntries = [];
     }
 
-    const snippets = excerpts.slice(0, 10);
+    const snippets = excerptEntries.map((e) => e.snippet).slice(0, 10);
     console.log(
       `Summarizing glossary entry for term "${term}" with ${snippets.length} snippets`,
     );

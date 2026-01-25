@@ -1,8 +1,6 @@
-import { findTerm, createTerm, getTermById } from "../repos/termRepo.js";
-import {
-  addSnippetToMentions,
-  getMentionsByTermId,
-} from "../repos/mentionRepo.js";
+import { findTerm, createTerm } from "../repos/termRepo.js";
+import { upsertMentionsForTerm } from "../repos/mentionRepo.js";
+import { getPagesByNotebook } from "../repos/pageRepo.js";
 import { computeExcerptsHash } from "../lib/glossaryUtils.js";
 
 export function extractTermsFromContent(content: string): string[] {
@@ -17,6 +15,16 @@ export function extractTermsFromContent(content: string): string[] {
   return found;
 }
 
+function buildSnippetAround(content: string, index: number, term: string) {
+  const radius = 60;
+  const start = Math.max(0, index - radius);
+  const end = Math.min(
+    content.length,
+    index + ("defn ".length + term.length) + radius,
+  );
+  return content.substring(start, end).trim();
+}
+
 export async function collectTermChanges(
   notebookId: number,
   pageId: number,
@@ -24,6 +32,8 @@ export async function collectTermChanges(
 ) {
   const termsFound = extractTermsFromContent(content);
   if (!termsFound.length) return [];
+
+  const pages = await getPagesByNotebook(notebookId);
 
   const results: Array<{
     termId: number;
@@ -44,18 +54,35 @@ export async function collectTermChanges(
         termId = termRow.id;
       }
 
-      const idx = content.toLowerCase().indexOf(("defn " + t).toLowerCase());
-      const radius = 60;
-      const start = Math.max(0, idx - radius);
-      const end = Math.min(
-        content.length,
-        idx + ("defn ".length + t.length) + radius,
-      );
-      const snippet = content.substring(start, end).trim();
+      // Scan all pages in the notebook for occurrences of the bare term (word boundaries)
+      const termRegex = new RegExp(`\\b${t}\\b`, "gi");
+      const excerpts: Array<{ pageId?: number; snippet: string }> = [];
 
-      const { excerptsJson, changed } = await addSnippetToMentions(
+      // Order pages by updatedDate desc if available, otherwise natural order
+      const orderedPages = pages.slice().sort((a: any, b: any) => {
+        const ta = a.updatedDate ? Number(a.updatedDate) : 0;
+        const tb = b.updatedDate ? Number(b.updatedDate) : 0;
+        return tb - ta;
+      });
+
+      for (const p of orderedPages) {
+        const contentText = p.content || "";
+        let m: RegExpExecArray | null;
+        const seenSnips = new Set<string>();
+        while ((m = termRegex.exec(contentText)) !== null) {
+          const snip = buildSnippetAround(contentText, m.index, t);
+          if (!snip) continue;
+          if (seenSnips.has(snip)) continue;
+          seenSnips.add(snip);
+          excerpts.push({ pageId: p.id, snippet: snip });
+          if (excerpts.length >= 10) break;
+        }
+        if (excerpts.length >= 10) break;
+      }
+
+      const { excerptsJson, changed } = await upsertMentionsForTerm(
         termId,
-        snippet,
+        excerpts,
       );
       const excerptsHash = await computeExcerptsHash(excerptsJson);
 
@@ -73,10 +100,6 @@ export async function collectTermChanges(
   }
 
   return results;
-}
-
-export async function getMentions(termId: number) {
-  return await getMentionsByTermId(termId);
 }
 
 export default null;

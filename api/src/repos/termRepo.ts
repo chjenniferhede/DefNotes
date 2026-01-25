@@ -31,11 +31,11 @@ export async function getTermsByNotebook(notebookId: number) {
     .from(terms)
     .where(eq(terms.notebookId, notebookId));
   return rows;
-} 
+}
 
 export async function deleteTerm(termId: number) {
   await db.delete(terms).where(eq(terms.id, termId));
-} 
+}
 
 export async function updateTerm(termId: number, newTerm: string) {
   await db.update(terms).set({ term: newTerm }).where(eq(terms.id, termId));
