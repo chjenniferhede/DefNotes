@@ -1,4 +1,8 @@
 import { GoogleGenAI } from "@google/genai";
+import dotenv from "dotenv";
+
+dotenv.config();
+console.log("GEMINI_API_KEY is set:", !!process.env.GEMINI_API_KEY);
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
@@ -37,5 +41,6 @@ export async function summarizeTermContexts(
     throw new Error("No response from AI");
   }
 
+  console.log("Generated: ", response.text);
   return response.text;
 }
