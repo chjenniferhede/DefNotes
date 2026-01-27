@@ -1,7 +1,8 @@
 import "./App.css";
 import { useState, useEffect, useRef } from "react";
 import SideBar from "./components/sidebar";
-import NotePage from "./components/notepage";
+import NotePage, { type NotePageHandle } from "./components/notepage";
+import GlossaryContent from "./components/glossary-content";
 import Header from "./components/header";
 import useNotebooks from "./hooks/use-notebooks";
 import { useStore } from "@nanostores/react";
@@ -21,6 +22,7 @@ function App() {
   const currentPageId = useStore(currentPageIdStore);
   const currentPage = useStore(currentPageStore);
   const prevSelectionRef = useRef<{ notebookId: string | null; pageId: string | null }>({ notebookId: null, pageId: null });
+  const notePageRef = useRef<NotePageHandle>(null);
 
   useEffect(() => {
     // initialize selection when notebooks load
@@ -47,7 +49,11 @@ function App() {
   };
 
   const savePageContent = async (content: string, explicit = false) => {
-    if (!currentNotebookId || !currentPageId) return;
+    if (!currentNotebookId || !currentPageId) {
+      console.warn("Cannot save: missing notebookId or pageId");
+      return;
+    }
+    console.log("Saving page:", { notebookId: currentNotebookId, pageId: currentPageId, explicit, contentLength: content.length });
     await updatePage(currentNotebookId, currentPageId, { content, explicitSave: explicit });
   };
 
@@ -80,10 +86,18 @@ function App() {
   }, [currentPageId, currentNotebookId]);
 
   const selectedPage = currentPage;
+  const isGlossaryPage = currentPageId?.startsWith("glossary-");
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
-      <Header title={selectedPage?.title ?? "DefNote"} onSave={() => savePageContent(editorContent, true)} />
+      <Header 
+        title={isGlossaryPage ? "Glossary" : (selectedPage?.title ?? "DefNote")} 
+        onSave={async () => {
+          if (notePageRef.current) {
+            await notePageRef.current.triggerSave();
+          }
+        }} 
+      />
 
       <div className="flex flex-1">
         <div className="w-1/5 min-w-[220px] flex-shrink-0 border-r border-gray-200">
@@ -97,11 +111,14 @@ function App() {
         </div>
 
         <div className="flex-1 overflow-auto">
-          {selectedPage && (
+          {isGlossaryPage && currentNotebookId && (
+            <GlossaryContent notebookId={currentNotebookId} />
+          )}
+          {!isGlossaryPage && selectedPage && (
             <NotePage
+              ref={notePageRef}
               page={selectedPage}
               onSave={savePageContent}
-              onChange={(c) => setEditorContent(c)}
             />
           )}
         </div>

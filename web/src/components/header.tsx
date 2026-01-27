@@ -1,22 +1,27 @@
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
 type HeaderProps = { title?: string; onSave?: () => void };
 
 const Header = ({ title, onSave }: HeaderProps) => {
   return (
     <header className="flex items-center justify-between p-4 border-b bg-white z-10">
-      <h1 className="text-lg font-semibold">{title ?? "DefNote"}</h1>
-      <div className="flex items-center space-x-2">
-        <button className="px-2 py-1 text-sm">Bold</button>
-        <button className="px-2 py-1 text-sm">Underline</button>
-        <button className="px-2 py-1 text-sm">Italic</button>
-        <button className="px-2 py-1 text-sm">Undo</button>
-        <button className="px-2 py-1 text-sm">Redo</button>
-        <button
-          className="px-2 py-1 text-sm bg-green-500 text-white rounded"
-          onClick={() => onSave?.()}
-        >
-          Save
-        </button>
+      <div className="relative w-96">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          type="search"
+          placeholder="Search..."
+          className="pl-10"
+        />
       </div>
+      <Button
+        variant="default"
+        size="sm"
+        onClick={() => onSave?.()}
+      >
+        Save
+      </Button>
     </header>
   );
 };

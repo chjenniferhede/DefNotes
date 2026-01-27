@@ -1,16 +1,17 @@
 import Notebooks from "./notebooks";
+import { Button } from "@/components/ui/button";
 
 export default function SideBar({ onAddNotebook, onAddPage, onEditNotebook }: any) {
   return (
     <div className="sidebar h-full min-h-dvh flex flex-col p-4">
       <div className="flex items-center justify-between p-2">
-        <h3 className="font-semibold">Notebooks</h3>
-        <button
-          className="px-2 py-1 bg-gray-100 rounded"
+        <Button 
+          className="w-full rounded-none border" 
+          variant="outline"
           onClick={onAddNotebook}
         >
-          New
-        </button>
+          New Notebook
+        </Button>
       </div>
       <Notebooks
         onAddNotebook={onAddNotebook}

@@ -1,6 +1,7 @@
 import type {
   Notebook,
   Page,
+  GlossaryEntry,
   CreateNotebookPayload,
   UpdateNotebookPayload,
   CreatePagePayload,
@@ -103,4 +104,12 @@ export async function deletePage(
     method: "DELETE",
   });
   if (!res.ok) throw new Error("Failed to delete page");
+}
+
+export async function getGlossaryEntries(
+  notebookId: string | number,
+): Promise<GlossaryEntry[]> {
+  const res = await fetch(`${notebooksBase()}/${notebookId}/glossary`);
+  if (!res.ok) throw new Error("Failed to fetch glossary entries");
+  return res.json();
 }

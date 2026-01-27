@@ -15,7 +15,11 @@ const Page = ({ page, notebookExpanded, notebookId }: PageProps) => {
   return (
     <li>
       <button
-        className={`text-sm text-left w-full ${isSelected ? "text-blue-600 font-medium" : (notebookExpanded ? "text-gray-500" : "text-gray-700")}`}
+        className={`text-sm text-left w-full px-2 py-1 border rounded-none ${
+          isSelected 
+            ? "text-blue-600 font-medium bg-blue-50 border-blue-300" 
+            : "text-gray-700 bg-white border-gray-200 hover:bg-gray-50"
+        }`}
         onClick={() => {
           currentPageIdStore.set(String(page.id));
           // ensure notebook selection matches the page's notebook

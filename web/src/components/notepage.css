@@ -1,0 +1,131 @@
+/* Basic Tiptap editor styles */
+.tiptap {
+  outline: none;
+  min-height: 100%;
+}
+
+.tiptap p.is-editor-empty:first-child::before {
+  color: #adb5bd;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+/* Toolbar styling */
+.control-group {
+  border-bottom: 1px solid #e5e7eb;
+  padding: 0.5rem;
+  background: #f9fafb;
+}
+
+.button-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.button-group button {
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 0.25rem;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.button-group button:hover:not(:disabled) {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.button-group button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.button-group button.is-active {
+  background: #3b82f6;
+  color: white;
+  border-color: #2563eb;
+}
+
+/* Format styles */
+.tiptap p {
+  margin: 1em 0;
+}
+
+.tiptap h1,
+.tiptap h2,
+.tiptap h3,
+.tiptap h4,
+.tiptap h5,
+.tiptap h6 {
+  line-height: 1.1;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.tiptap h1 { font-size: 2em; }
+.tiptap h2 { font-size: 1.5em; }
+.tiptap h3 { font-size: 1.25em; }
+.tiptap h4 { font-size: 1em; }
+.tiptap h5 { font-size: 0.875em; }
+.tiptap h6 { font-size: 0.75em; }
+
+.tiptap code {
+  background-color: rgba(97, 97, 97, 0.1);
+  border-radius: 0.25em;
+  box-decoration-break: clone;
+  color: #616161;
+  font-size: 0.9em;
+  padding: 0.25em;
+}
+
+.tiptap pre {
+  background: #0d0d0d;
+  border-radius: 0.5em;
+  color: #fff;
+  font-family: 'JetBrainsMono', monospace;
+  margin: 1.5em 0;
+  padding: 0.75em 1em;
+}
+
+.tiptap pre code {
+  background: none;
+  color: inherit;
+  font-size: 0.8em;
+  padding: 0;
+}
+
+.tiptap ul,
+.tiptap ol {
+  margin: 1em 0;
+  padding: 0 1em;
+}
+
+.tiptap li {
+  margin: 0.5em 0;
+}
+
+.tiptap blockquote {
+  border-left: 3px solid #0d0d0d;
+  margin: 1.5em 0;
+  padding-left: 1em;
+}
+
+.tiptap hr {
+  border: none;
+  border-top: 2px solid rgba(13, 13, 13, 0.1);
+  margin: 2em 0;
+}
+
+.tiptap a {
+  color: #3b82f6;
+  text-decoration: underline;
+}
+
+.tiptap a:hover {
+  color: #2563eb;
+}
