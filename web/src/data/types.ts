@@ -5,7 +5,7 @@ export type GlossaryEntry = {
   id: number;
   termId: number;
   term: string;
-  definition: string;
+  content: string;
   sourceHash: string;
 };
 

@@ -1,4 +1,5 @@
 import { useStore } from "@nanostores/react";
+import { useState, useRef, useEffect } from "react";
 import { notebooksStore } from "../stores/notebooks";
 import type { Notebook as NotebookType } from "../stores/notebooks";
 import {
@@ -22,11 +23,35 @@ const Notebooks = ({ onAddPage, onEditNotebook }: NotebooksProps) => {
   const notebooks = useStore(notebooksStore) as NotebookType[];
   const currentNotebookId = useStore(currentNotebookIdStore);
 
-  const handleDoubleClick = (notebook: NotebookType) => {
-    const newTitle = window.prompt("Edit notebook title", notebook.title);
-    if (newTitle !== null && newTitle !== notebook.title && onEditNotebook) {
-      onEditNotebook(notebook.id, { title: newTitle });
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [draftTitle, setDraftTitle] = useState<string>("");
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const startEditing = (notebook: NotebookType) => {
+    setEditingId(String(notebook.id));
+    setDraftTitle(notebook.title || "");
+  };
+
+  useEffect(() => {
+    if (editingId && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
     }
+  }, [editingId]);
+
+  const finishEditing = (notebookId: string) => {
+    if (!editingId) return;
+    const trimmed = draftTitle.trim();
+    if (trimmed.length > 0 && onEditNotebook && trimmed !== undefined) {
+      onEditNotebook(notebookId, { title: trimmed });
+    }
+    setEditingId(null);
+    setDraftTitle("");
+  };
+
+  const cancelEditing = () => {
+    setEditingId(null);
+    setDraftTitle("");
   };
 
   return (
@@ -43,11 +68,35 @@ const Notebooks = ({ onAddPage, onEditNotebook }: NotebooksProps) => {
               <AccordionTrigger
                 className="px-3 py-2 hover:no-underline rounded-none"
                 onClick={() => currentNotebookIdStore.set(String(nb.id))}
-                onDoubleClick={() => handleDoubleClick(nb)}
+                onPointerDown={(e: any) => {
+                  // if this is the second click (double-click), prevent Accordion from toggling
+                  if (e.detail === 2) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    startEditing(nb);
+                  }
+                }}
               >
-                <span className={isSelected ? "font-bold" : ""}>
-                  {nb.title}
-                </span>
+                {editingId === String(nb.id) ? (
+                  <input
+                    ref={inputRef}
+                    value={draftTitle}
+                    onChange={(e) => setDraftTitle(e.target.value)}
+                    onBlur={() => finishEditing(String(nb.id))}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        finishEditing(String(nb.id));
+                      } else if (e.key === "Escape") {
+                        cancelEditing();
+                      }
+                    }}
+                    className="w-full bg-white border border-gray-300 px-1 py-0.5 rounded text-sm"
+                  />
+                ) : (
+                  <span className={isSelected ? "font-bold" : ""}>
+                    {nb.title}
+                  </span>
+                )}
               </AccordionTrigger>
               <AccordionContent className="px-3 pb-2">
                 <ul className="space-y-1 bg-gray-50 p-2 rounded-none">

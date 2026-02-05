@@ -118,7 +118,6 @@ function App() {
             <NotePage
               ref={notePageRef}
               page={selectedPage}
-              onSave={savePageContent}
             />
           )}
         </div>

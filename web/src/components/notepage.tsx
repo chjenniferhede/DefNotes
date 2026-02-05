@@ -4,12 +4,14 @@ import TextAlign from "@tiptap/extension-text-align";
 import type { Editor } from "@tiptap/react";
 import { useEditor, EditorContent, useEditorState } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { useMutationPage } from "../hooks/use-mutation-page";
+import { useStore } from "@nanostores/react";
+import { currentNotebookIdStore, currentPageIdStore } from "../lib/store";
 import type { Page as PageType } from "../data/types";
 import "./notepage.css";
 
 interface NotePageProps {
   page?: PageType | null;
-  onSave: (content: string) => Promise<void>;
 }
 
 export interface NotePageHandle {
@@ -193,7 +195,11 @@ function MenuBar({ editor }: { editor: Editor }) {
   );
 }
 
-const NotePage = forwardRef<NotePageHandle, NotePageProps>(({ page, onSave }, ref) => {
+const NotePage = forwardRef<NotePageHandle, NotePageProps>(({ page }, ref) => {
+  const { updatePage } = useMutationPage();
+  const currentNotebookId = useStore(currentNotebookIdStore);
+  const currentPageId = useStore(currentPageIdStore);
+
   const editor = useEditor({
     extensions: [
       TextStyleKit,
@@ -205,16 +211,22 @@ const NotePage = forwardRef<NotePageHandle, NotePageProps>(({ page, onSave }, re
     content: "",
     editorProps: {
       attributes: {
-        class: "prose prose-sm sm:prose lg:prose-lg xl:prose-2xl focus:outline-none min-h-full p-4",
+        // remove prose centering and force left alignment
+        class: "prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-0 text-left focus:outline-none min-h-full p-4 tiptap",
       },
+    },
+    onUpdate: async ({ editor }) => {
+      if (!currentNotebookId || !currentPageId) return;
+      const content = JSON.stringify(editor.getJSON());
+      await updatePage(currentNotebookId, currentPageId, { content });
     },
   });
 
   useImperativeHandle(ref, () => ({
     triggerSave: async () => {
-      if (!editor) return;
+      if (!editor || !currentNotebookId || !currentPageId) return;
       const content = JSON.stringify(editor.getJSON());
-      await onSave(content);
+      await updatePage(currentNotebookId, currentPageId, { content, explicitSave: true });
     },
   }));
 
