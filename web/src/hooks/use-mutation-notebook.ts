@@ -1,3 +1,10 @@
+/**
+ * Hook for notebook actions.
+ *
+ * Use this to create, update, or delete notebooks. It
+ * calls the backend API and updates the local store so the UI reflects
+ * changes quickly and stays in sync.
+ */
 import * as api from "../data/api";
 import {
   fetchNotebooks,

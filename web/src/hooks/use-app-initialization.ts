@@ -1,10 +1,15 @@
+/**
+ * App initialization helper.
+ *
+ * When the app first loads, this hook picks sensible defaults
+ * for which notebook and page should be shown. Pass the
+ * `notebooks` list and it will select the first notebook and its first
+ * page if nothing is already selected.
+ */
 import { useEffect } from "react";
 import type { Notebook } from "../data/types";
 import { useSelection } from "./use-selection";
 
-/**
- * Centralized hook for app initialization logic
- */
 export function useAppInitialization(notebooks: Notebook[] | undefined) {
   const { selectNotebook, selectPage, currentNotebookId } = useSelection();
 

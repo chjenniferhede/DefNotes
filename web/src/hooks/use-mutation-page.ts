@@ -1,3 +1,10 @@
+/**
+ * Hook for page actions (create, update, delete).
+ *
+ * Handles saving page content and titles to the
+ * backend and keeps the local store up-to-date so the editor and page
+ * list reflect changes immediately.
+ */
 import * as api from "../data/api";
 import { fetchNotebooks } from "../stores/notebooks";
 import { updatePageInStore } from "../lib/store-notepage";

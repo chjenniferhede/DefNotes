@@ -1,12 +1,16 @@
+/**
+ * Selection manager hook.
+ *
+ * Central place to read and change which notebook or page
+ * is currently active. Use to select notebooks, pages, or the
+ * glossary page and to check what is currently selected.
+ */
 import { useStore } from "@nanostores/react";
 import {
   currentNotebookIdStore,
   currentPageIdStore,
 } from "../lib/store-notepage";
 
-/**
- * Centralized hook for managing selection state
- */
 export function useSelection() {
   const currentNotebookId = useStore(currentNotebookIdStore);
   const currentPageId = useStore(currentPageIdStore);

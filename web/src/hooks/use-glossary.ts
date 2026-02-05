@@ -1,3 +1,10 @@
+/**
+ * Glossary loader hook.
+ *
+ * Fetches and returns glossary entries for a given notebook.
+ * Provides the entries, a loading flag, and a `refresh`
+ * function so UI can show and update glossary content easily.
+ */
 import { useEffect, useState } from "react";
 import { useStore } from "@nanostores/react";
 import { glossaryStore, fetchGlossaryEntries } from "../lib/store-glossary";

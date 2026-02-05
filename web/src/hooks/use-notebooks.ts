@@ -1,3 +1,10 @@
+/**
+ * Hook to access the notebooks collection.
+ *
+ * Returns the current list of notebooks, loads them
+ * on mount, and exposes convenience functions for creating, updating,
+ * and deleting notebooks and pages.
+ */
 import { useEffect } from "react";
 import { useStore } from "@nanostores/react";
 import { notebooksStore, fetchNotebooks } from "../lib/store-notepage";
@@ -17,7 +24,6 @@ export function useNotebooks() {
 
   useEffect(() => {
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return {
