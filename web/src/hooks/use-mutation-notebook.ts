@@ -3,7 +3,7 @@ import {
   fetchNotebooks,
   addNotebookToStore,
   removeNotebookFromStore,
-} from "../stores/notebooks";
+} from "../lib/store";
 import type { Notebook } from "../data/types";
 
 export function useMutationNotebook() {

@@ -3,7 +3,7 @@ import { useStore } from "@nanostores/react";
 import {
   notebooksStore,
   fetchNotebooks,
-} from "../stores/notebooks";
+} from "../lib/store";
 import { useMutationNotebook } from "./use-mutation-notebook";
 import { useMutationPage } from "./use-mutation-page";
 
