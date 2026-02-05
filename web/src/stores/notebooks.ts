@@ -1,3 +1,4 @@
+// This file is deprecated - use ../lib/store.ts directly
 export {
   notebooksStore,
   fetchNotebooks,

@@ -1,7 +1,7 @@
 import { useStore } from "@nanostores/react";
 import { useState, useRef, useEffect } from "react";
-import { notebooksStore } from "../stores/notebooks";
-import type { Notebook as NotebookType } from "../stores/notebooks";
+import { notebooksStore } from "../lib/store";
+import type { Notebook as NotebookType } from "../data/types";
 import {
   Accordion,
   AccordionContent,
@@ -11,7 +11,7 @@ import {
 import Page from "./page";
 import GlossaryPage from "./glossary-page";
 import type { Page as PageType } from "../data/types";
-import { currentNotebookIdStore } from "../lib/store";
+import { useSelection } from "../hooks/use-selection";
 
 interface NotebooksProps {
   onAddNotebook: () => void;
@@ -21,13 +21,15 @@ interface NotebooksProps {
 
 const Notebooks = ({ onAddPage, onEditNotebook }: NotebooksProps) => {
   const notebooks = useStore(notebooksStore) as NotebookType[];
-  const currentNotebookId = useStore(currentNotebookIdStore);
+  const { selectNotebook, isNotebookSelected } = useSelection();
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draftTitle, setDraftTitle] = useState<string>("");
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const startEditing = (notebook: NotebookType) => {
+  const startEditing = (notebook: NotebookType, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     setEditingId(String(notebook.id));
     setDraftTitle(notebook.title || "");
   };
@@ -58,7 +60,7 @@ const Notebooks = ({ onAddPage, onEditNotebook }: NotebooksProps) => {
     <div className="overflow-auto mt-3">
       <Accordion type="single" collapsible className="w-full space-y-2">
         {notebooks.map((nb) => {
-          const isSelected = String(currentNotebookId) === String(nb.id);
+          const isSelected = isNotebookSelected(nb.id);
           return (
             <AccordionItem
               key={nb.id}
@@ -67,15 +69,15 @@ const Notebooks = ({ onAddPage, onEditNotebook }: NotebooksProps) => {
             >
               <AccordionTrigger
                 className="px-3 py-2 hover:no-underline rounded-none"
-                onClick={() => currentNotebookIdStore.set(String(nb.id))}
-                onPointerDown={(e: any) => {
-                  // if this is the second click (double-click), prevent Accordion from toggling
-                  if (e.detail === 2) {
+                onClick={(e) => {
+                  if (editingId === String(nb.id)) {
                     e.preventDefault();
                     e.stopPropagation();
-                    startEditing(nb);
+                    return;
                   }
+                  selectNotebook(nb.id);
                 }}
+                onDoubleClick={(e) => startEditing(nb, e)}
               >
                 {editingId === String(nb.id) ? (
                   <input

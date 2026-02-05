@@ -5,8 +5,10 @@ import NotePage, { type NotePageHandle } from "./components/notepage";
 import GlossaryContent from "./components/glossary-content";
 import Header from "./components/header";
 import useNotebooks from "./hooks/use-notebooks";
+import { useSelection } from "./hooks/use-selection";
+import { useAppInitialization } from "./hooks/use-app-initialization";
 import { useStore } from "@nanostores/react";
-import { currentNotebookIdStore, currentPageIdStore, currentPageStore } from "./lib/store";
+import { currentPageStore } from "./lib/store";
 
 function App() {
   const {
@@ -17,36 +19,34 @@ function App() {
     updatePage,
   } = useNotebooks();
 
-  const [editorContent, setEditorContent] = useState<string>("");
-  const currentNotebookId = useStore(currentNotebookIdStore);
-  const currentPageId = useStore(currentPageIdStore);
+  const { currentNotebookId, currentPageId, selectNotebook, selectPage } = useSelection();
   const currentPage = useStore(currentPageStore);
-  const prevSelectionRef = useRef<{ notebookId: string | null; pageId: string | null }>({ notebookId: null, pageId: null });
   const notePageRef = useRef<NotePageHandle>(null);
+  
+  // Initialize app selection state
+  useAppInitialization(notebooks);
 
-  useEffect(() => {
-    // initialize selection when notebooks load
-    if (!currentNotebookId && notebooks && notebooks.length) {
-      currentNotebookIdStore.set(String(notebooks[0].id));
-      const firstPage =
-        notebooks[0].pages && notebooks[0].pages.length
-          ? String(notebooks[0].pages[0].id)
-          : null;
-      currentPageIdStore.set(firstPage);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [notebooks]);
+  const [editorContent, setEditorContent] = useState<string>("");
+  const prevSelectionRef = useRef<{ notebookId: string | null; pageId: string | null }>({ notebookId: null, pageId: null });
 
   const addNotebook = async () => {
     const created = await createNotebook("New Notebook");
-    currentNotebookIdStore.set(String(created.id));
+    selectNotebook(created.id);
   };
 
   const addPage = async (notebookId: string) => {
     const created = await createPage(notebookId, "New Page");
-    currentNotebookIdStore.set(String(notebookId));
-    currentPageIdStore.set(String(created.id));
+    selectPage(created.id, notebookId);
   };
+
+  useEffect(() => {
+    // when selection changes, update editor content to selected page
+    const sp = (notebooks || [])
+      .find((n: any) => String(n.id) === String(currentNotebookId))
+      ?.pages?.find((p: any) => String(p.id) === String(currentPageId));
+    setEditorContent(sp?.content ?? "");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPageId, currentNotebookId, notebooks]);
 
   const savePageContent = async (content: string, explicit = false) => {
     if (!currentNotebookId || !currentPageId) {

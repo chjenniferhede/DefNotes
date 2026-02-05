@@ -1,42 +1,15 @@
-import { useState, useEffect } from "react";
-import { getGlossaryEntries } from "../data/api";
-import type { GlossaryEntry } from "../data/types";
-import { useStore } from "@nanostores/react";
-import { currentPageIdStore, currentNotebookIdStore } from "../lib/store";
+import { useSelection } from "../hooks/use-selection";
 
 interface GlossaryPageProps {
   notebookId: string | number;
 }
 
 const GlossaryPage = ({ notebookId }: GlossaryPageProps) => {
-  const [entries, setEntries] = useState<GlossaryEntry[]>([]);
-  const [loading, setLoading] = useState(false);
-  const currentPageId = useStore(currentPageIdStore);
-  const glossaryPageId = `glossary-${notebookId}`;
-  const isSelected = currentPageId === glossaryPageId;
-
-  useEffect(() => {
-    if (!notebookId || !isSelected) return;
-
-    const fetchEntries = async () => {
-      try {
-        setLoading(true);
-        const data = await getGlossaryEntries(notebookId);
-        setEntries(data);
-      } catch (error) {
-        console.error("Failed to fetch glossary entries:", error);
-        setEntries([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchEntries();
-  }, [notebookId, isSelected]);
+  const { selectGlossaryPage, isGlossaryPageSelected } = useSelection();
+  const isSelected = isGlossaryPageSelected(notebookId);
 
   const handleClick = () => {
-    currentPageIdStore.set(glossaryPageId);
-    currentNotebookIdStore.set(String(notebookId));
+    selectGlossaryPage(notebookId);
   };
 
   return (
