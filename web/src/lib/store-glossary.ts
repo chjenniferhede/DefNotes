@@ -20,6 +20,8 @@ export async function fetchGlossaryEntries(notebookId: string | number) {
   }
 }
 
-export function getGlossaryEntriesFromStore(notebookId: string | number): GlossaryEntry[] {
+export function getGlossaryEntriesFromStore(
+  notebookId: string | number,
+): GlossaryEntry[] {
   return glossaryStore.get()[String(notebookId)] ?? [];
 }

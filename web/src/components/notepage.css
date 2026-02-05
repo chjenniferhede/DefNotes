@@ -67,12 +67,24 @@
   margin-bottom: 0.5em;
 }
 
-.tiptap h1 { font-size: 2em; }
-.tiptap h2 { font-size: 1.5em; }
-.tiptap h3 { font-size: 1.25em; }
-.tiptap h4 { font-size: 1em; }
-.tiptap h5 { font-size: 0.875em; }
-.tiptap h6 { font-size: 0.75em; }
+.tiptap h1 {
+  font-size: 2em;
+}
+.tiptap h2 {
+  font-size: 1.5em;
+}
+.tiptap h3 {
+  font-size: 1.25em;
+}
+.tiptap h4 {
+  font-size: 1em;
+}
+.tiptap h5 {
+  font-size: 0.875em;
+}
+.tiptap h6 {
+  font-size: 0.75em;
+}
 
 .tiptap code {
   background-color: rgba(97, 97, 97, 0.1);
@@ -87,7 +99,7 @@
   background: #0d0d0d;
   border-radius: 0.5em;
   color: #fff;
-  font-family: 'JetBrainsMono', monospace;
+  font-family: "JetBrainsMono", monospace;
   margin: 1.5em 0;
   padding: 0.75em 1em;
 }

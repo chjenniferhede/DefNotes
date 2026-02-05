@@ -1,5 +1,8 @@
 import { useStore } from "@nanostores/react";
-import { currentNotebookIdStore, currentPageIdStore } from "../lib/store";
+import {
+  currentNotebookIdStore,
+  currentPageIdStore,
+} from "../lib/store-notepage";
 
 /**
  * Centralized hook for managing selection state
@@ -12,7 +15,10 @@ export function useSelection() {
     currentNotebookIdStore.set(String(notebookId));
   };
 
-  const selectPage = (pageId: string | number, notebookId?: string | number) => {
+  const selectPage = (
+    pageId: string | number,
+    notebookId?: string | number,
+  ) => {
     currentPageIdStore.set(String(pageId));
     // Ensure notebook selection matches the page's notebook
     if (notebookId) {

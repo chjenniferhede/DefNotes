@@ -8,26 +8,25 @@ import useNotebooks from "./hooks/use-notebooks";
 import { useSelection } from "./hooks/use-selection";
 import { useAppInitialization } from "./hooks/use-app-initialization";
 import { useStore } from "@nanostores/react";
-import { currentPageStore } from "./lib/store";
+import { currentPageStore } from "./lib/store-notepage";
 
 function App() {
-  const {
-    notebooks,
-    createNotebook,
-    createPage,
-    updateNotebook,
-    updatePage,
-  } = useNotebooks();
+  const { notebooks, createNotebook, createPage, updateNotebook, updatePage } =
+    useNotebooks();
 
-  const { currentNotebookId, currentPageId, selectNotebook, selectPage } = useSelection();
+  const { currentNotebookId, currentPageId, selectNotebook, selectPage } =
+    useSelection();
   const currentPage = useStore(currentPageStore);
   const notePageRef = useRef<NotePageHandle>(null);
-  
+
   // Initialize app selection state
   useAppInitialization(notebooks);
 
   const [editorContent, setEditorContent] = useState<string>("");
-  const prevSelectionRef = useRef<{ notebookId: string | null; pageId: string | null }>({ notebookId: null, pageId: null });
+  const prevSelectionRef = useRef<{
+    notebookId: string | null;
+    pageId: string | null;
+  }>({ notebookId: null, pageId: null });
 
   const addNotebook = async () => {
     const created = await createNotebook("New Notebook");
@@ -53,8 +52,16 @@ function App() {
       console.warn("Cannot save: missing notebookId or pageId");
       return;
     }
-    console.log("Saving page:", { notebookId: currentNotebookId, pageId: currentPageId, explicit, contentLength: content.length });
-    await updatePage(currentNotebookId, currentPageId, { content, explicitSave: explicit });
+    console.log("Saving page:", {
+      notebookId: currentNotebookId,
+      pageId: currentPageId,
+      explicit,
+      contentLength: content.length,
+    });
+    await updatePage(currentNotebookId, currentPageId, {
+      content,
+      explicitSave: explicit,
+    });
   };
 
   useEffect(() => {
@@ -74,13 +81,20 @@ function App() {
 
     (async () => {
       if (prevNotebook && prevPage) {
-        const nb = (notebooks || []).find((n: any) => String(n.id) === String(prevNotebook));
-        const pg = nb?.pages?.find((p: any) => String(p.id) === String(prevPage));
+        const nb = (notebooks || []).find(
+          (n: any) => String(n.id) === String(prevNotebook),
+        );
+        const pg = nb?.pages?.find(
+          (p: any) => String(p.id) === String(prevPage),
+        );
         if (pg && editorContent !== (pg.content ?? "")) {
           await updatePage(prevNotebook, prevPage, { content: editorContent });
         }
       }
-      prevSelectionRef.current = { notebookId: currentNotebookId, pageId: currentPageId };
+      prevSelectionRef.current = {
+        notebookId: currentNotebookId,
+        pageId: currentPageId,
+      };
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPageId, currentNotebookId]);
@@ -90,13 +104,13 @@ function App() {
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
-      <Header 
-        title={isGlossaryPage ? "Glossary" : (selectedPage?.title ?? "DefNote")} 
+      <Header
+        title={isGlossaryPage ? "Glossary" : (selectedPage?.title ?? "DefNote")}
         onSave={async () => {
           if (notePageRef.current) {
             await notePageRef.current.triggerSave();
           }
-        }} 
+        }}
       />
 
       <div className="flex flex-1">
@@ -115,10 +129,7 @@ function App() {
             <GlossaryContent notebookId={currentNotebookId} />
           )}
           {!isGlossaryPage && selectedPage && (
-            <NotePage
-              ref={notePageRef}
-              page={selectedPage}
-            />
+            <NotePage ref={notePageRef} page={selectedPage} />
           )}
         </div>
       </div>

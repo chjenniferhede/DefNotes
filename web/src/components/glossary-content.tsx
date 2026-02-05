@@ -27,14 +27,21 @@ const GlossaryContent = ({ notebookId }: GlossaryContentProps) => {
 
   return (
     <div className="p-8 max-w-4xl mx-auto text-left">
-      <h1 className="text-3xl font-bold text-purple-700 mb-6 text-left">Glossary</h1>
+      <h1 className="text-3xl font-bold text-purple-700 mb-6 text-left">
+        Glossary
+      </h1>
       <div className="space-y-6">
         {entries.map((entry) => (
-          <div key={entry.id} className="border-l-4 border-purple-300 bg-purple-50 pl-4 py-3 pr-4 rounded-r text-left">
+          <div
+            key={entry.id}
+            className="border-l-4 border-purple-300 bg-purple-50 pl-4 py-3 pr-4 rounded-r text-left"
+          >
             <h2 className="text-xl font-semibold text-purple-900 mb-2 text-left">
               {entry.term}
             </h2>
-            <p className="text-gray-700 leading-relaxed whitespace-pre-wrap text-left">{entry.content}</p>
+            <p className="text-gray-700 leading-relaxed whitespace-pre-wrap text-left">
+              {entry.content}
+            </p>
           </div>
         ))}
       </div>

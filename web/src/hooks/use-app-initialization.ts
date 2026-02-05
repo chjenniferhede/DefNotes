@@ -13,7 +13,7 @@ export function useAppInitialization(notebooks: Notebook[] | undefined) {
     if (!currentNotebookId && notebooks && notebooks.length > 0) {
       const firstNotebook = notebooks[0];
       selectNotebook(firstNotebook.id);
-      
+
       // Select first page if available
       if (firstNotebook.pages && firstNotebook.pages.length > 0) {
         selectPage(firstNotebook.pages[0].id);

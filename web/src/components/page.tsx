@@ -13,7 +13,7 @@ const Page = ({ page, notebookExpanded, notebookId }: PageProps) => {
   const { updatePage } = useMutationPage();
   const { selectPage, isPageSelected } = useSelection();
   const isSelected = isPageSelected(page.id);
-  
+
   const [isEditing, setIsEditing] = useState(false);
   const [draftTitle, setDraftTitle] = useState("");
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -69,8 +69,8 @@ const Page = ({ page, notebookExpanded, notebookId }: PageProps) => {
       ) : (
         <button
           className={`text-sm text-left w-full px-2 py-1 border rounded-none ${
-            isSelected 
-              ? "text-blue-600 font-medium bg-blue-50 border-blue-300" 
+            isSelected
+              ? "text-blue-600 font-medium bg-blue-50 border-blue-300"
               : "text-gray-700 bg-white border-gray-200 hover:bg-gray-50"
           }`}
           onClick={() => selectPage(page.id, notebookId)}

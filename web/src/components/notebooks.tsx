@@ -1,6 +1,6 @@
 import { useStore } from "@nanostores/react";
 import { useState, useRef, useEffect } from "react";
-import { notebooksStore } from "../lib/store";
+import { notebooksStore } from "../lib/store-notepage";
 import type { Notebook as NotebookType } from "../data/types";
 import {
   Accordion,

@@ -1,6 +1,6 @@
 import * as api from "../data/api";
 import { fetchNotebooks } from "../stores/notebooks";
-import { updatePageInStore } from "../lib/store";
+import { updatePageInStore } from "../lib/store-notepage";
 import type { Page } from "../data/types";
 
 export function useMutationPage() {

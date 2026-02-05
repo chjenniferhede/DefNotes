@@ -5,5 +5,5 @@ export {
   setNotebooks,
   addNotebookToStore,
   removeNotebookFromStore,
-} from "../lib/store";
+} from "../lib/store-notepage";
 export type { Notebook, Page } from "../data/types";

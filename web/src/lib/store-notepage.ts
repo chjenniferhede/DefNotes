@@ -10,12 +10,14 @@ export const currentPageIdStore = atom<string | null>(null);
 
 export const currentNotebookStore = computed(
   [notebooksStore, currentNotebookIdStore],
-  (notebooks, nbId) => notebooks.find((n) => String(n.id) === String(nbId)) ?? null,
+  (notebooks, nbId) =>
+    notebooks.find((n) => String(n.id) === String(nbId)) ?? null,
 );
 
 export const currentPageStore = computed(
   [currentNotebookStore, currentPageIdStore],
-  (notebook, pageId) => notebook?.pages?.find((p: Page) => String(p.id) === String(pageId)) ?? null,
+  (notebook, pageId) =>
+    notebook?.pages?.find((p: Page) => String(p.id) === String(pageId)) ?? null,
 );
 
 export async function fetchNotebooks() {

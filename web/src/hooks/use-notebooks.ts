@@ -1,9 +1,6 @@
 import { useEffect } from "react";
 import { useStore } from "@nanostores/react";
-import {
-  notebooksStore,
-  fetchNotebooks,
-} from "../lib/store";
+import { notebooksStore, fetchNotebooks } from "../lib/store-notepage";
 import { useMutationNotebook } from "./use-mutation-notebook";
 import { useMutationPage } from "./use-mutation-page";
 

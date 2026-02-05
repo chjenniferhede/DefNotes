@@ -6,7 +6,10 @@ import { useEditor, EditorContent, useEditorState } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useMutationPage } from "../hooks/use-mutation-page";
 import { useStore } from "@nanostores/react";
-import { currentNotebookIdStore, currentPageIdStore } from "../lib/store";
+import {
+  currentNotebookIdStore,
+  currentPageIdStore,
+} from "../lib/store-notepage";
 import type { Page as PageType } from "../data/types";
 import "./notepage.css";
 
@@ -82,8 +85,12 @@ function MenuBar({ editor }: { editor: Editor }) {
         >
           Code
         </button>
-        <button onClick={() => editor.chain().focus().unsetAllMarks().run()}>Clear marks</button>
-        <button onClick={() => editor.chain().focus().clearNodes().run()}>Clear nodes</button>
+        <button onClick={() => editor.chain().focus().unsetAllMarks().run()}>
+          Clear marks
+        </button>
+        <button onClick={() => editor.chain().focus().clearNodes().run()}>
+          Clear nodes
+        </button>
         <button
           onClick={() => editor.chain().focus().setParagraph().run()}
           className={editorState.isParagraph ? "is-active" : ""}
@@ -91,37 +98,49 @@ function MenuBar({ editor }: { editor: Editor }) {
           Paragraph
         </button>
         <button
-          onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 1 }).run()
+          }
           className={editorState.isHeading1 ? "is-active" : ""}
         >
           H1
         </button>
         <button
-          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 2 }).run()
+          }
           className={editorState.isHeading2 ? "is-active" : ""}
         >
           H2
         </button>
         <button
-          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 3 }).run()
+          }
           className={editorState.isHeading3 ? "is-active" : ""}
         >
           H3
         </button>
         <button
-          onClick={() => editor.chain().focus().toggleHeading({ level: 4 }).run()}
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 4 }).run()
+          }
           className={editorState.isHeading4 ? "is-active" : ""}
         >
           H4
         </button>
         <button
-          onClick={() => editor.chain().focus().toggleHeading({ level: 5 }).run()}
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 5 }).run()
+          }
           className={editorState.isHeading5 ? "is-active" : ""}
         >
           H5
         </button>
         <button
-          onClick={() => editor.chain().focus().toggleHeading({ level: 6 }).run()}
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 6 }).run()
+          }
           className={editorState.isHeading6 ? "is-active" : ""}
         >
           H6
@@ -150,10 +169,14 @@ function MenuBar({ editor }: { editor: Editor }) {
         >
           Blockquote
         </button>
-        <button onClick={() => editor.chain().focus().setHorizontalRule().run()}>
+        <button
+          onClick={() => editor.chain().focus().setHorizontalRule().run()}
+        >
           Horizontal rule
         </button>
-        <button onClick={() => editor.chain().focus().setHardBreak().run()}>Hard break</button>
+        <button onClick={() => editor.chain().focus().setHardBreak().run()}>
+          Hard break
+        </button>
         <button
           onClick={() => editor.chain().focus().setTextAlign("left").run()}
           className={editorState.isAlignLeft ? "is-active" : ""}
@@ -212,7 +235,8 @@ const NotePage = forwardRef<NotePageHandle, NotePageProps>(({ page }, ref) => {
     editorProps: {
       attributes: {
         // remove prose centering and force left alignment
-        class: "prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-0 text-left focus:outline-none min-h-full p-4 tiptap",
+        class:
+          "prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-0 text-left focus:outline-none min-h-full p-4 tiptap",
       },
     },
     onUpdate: async ({ editor }) => {
@@ -226,7 +250,10 @@ const NotePage = forwardRef<NotePageHandle, NotePageProps>(({ page }, ref) => {
     triggerSave: async () => {
       if (!editor || !currentNotebookId || !currentPageId) return;
       const content = JSON.stringify(editor.getJSON());
-      await updatePage(currentNotebookId, currentPageId, { content, explicitSave: true });
+      await updatePage(currentNotebookId, currentPageId, {
+        content,
+        explicitSave: true,
+      });
     },
   }));
 

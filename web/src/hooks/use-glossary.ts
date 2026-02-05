@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useStore } from "@nanostores/react";
-import { glossaryStore, fetchGlossaryEntries } from "../stores/glossary";
+import { glossaryStore, fetchGlossaryEntries } from "../lib/store-glossary";
 import type { GlossaryEntry } from "../data/types";
 
 export function useGlossary(notebookId: string | number) {

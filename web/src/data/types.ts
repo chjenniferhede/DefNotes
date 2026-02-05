@@ -12,5 +12,9 @@ export type GlossaryEntry = {
 export type CreateNotebookPayload = { title: string };
 export type UpdateNotebookPayload = Partial<Notebook>;
 
-export type CreatePagePayload = { title: string; content?: string; explicitSave?: boolean };
+export type CreatePagePayload = {
+  title: string;
+  content?: string;
+  explicitSave?: boolean;
+};
 export type UpdatePagePayload = Partial<Page> & { explicitSave?: boolean };
