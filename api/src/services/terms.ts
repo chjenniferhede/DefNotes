@@ -1,7 +1,7 @@
 import { findTerm, createTerm } from "../repos/termRepo.js";
 import { upsertMentionsForTerm } from "../repos/mentionRepo.js";
 import { getPagesByNotebook } from "../repos/pageRepo.js";
-import { computeExcerptsHash } from "../lib/glossaryUtils.js";
+import { computeExcerptsHash } from "./glossaryUtils.js";
 
 export function extractTermsFromContent(content: string): string[] {
   if (!content) return [];

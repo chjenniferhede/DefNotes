@@ -1,10 +1,10 @@
 import { db } from "../db/index.js";
 import { mentions } from "../db/schema.js";
 import { eq } from "drizzle-orm";
-import { safeParseExcerpts } from "../lib/glossaryUtils.js";
+import { safeParseExcerpts } from "../services/glossaryUtils.js";
 
 // Returns mention row or null
-export async function getMentionsByTermId(termId: number) {
+export async function getMentionByTermId(termId: number) {
   const [m] = await db
     .select()
     .from(mentions)

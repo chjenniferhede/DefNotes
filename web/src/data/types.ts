@@ -9,6 +9,16 @@ export type GlossaryEntry = {
   sourceHash: string;
 };
 
+export type Document = {
+  id: number;
+  notebookId: number;
+  filename: string;
+  fileType: string;
+  totalTokens: number;
+  status: string;
+  uploadedAt: string;
+};
+
 export type CreateNotebookPayload = { title: string };
 export type UpdateNotebookPayload = Partial<Notebook>;
 

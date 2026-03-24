@@ -1,12 +1,12 @@
 import {
   getGlossaryEntry,
-  insertGlossaryEntry,
+  createGlossaryEntry,
   updateGlossaryEntry,
 } from "../repos/glossaryRepo.js";
 import {
   safeParseExcerpts,
   computeExcerptsHash,
-} from "../lib/glossaryUtils.js";
+} from "./glossaryUtils.js";
 import { summarizeTermContexts } from "../ai/gemini.js";
 
 // Orchestrator: decide which terms need summarization and run in background
@@ -104,7 +104,7 @@ async function processGlossaryUpdate(
 
     const existing = await getGlossaryEntry(termId, notebookId);
     if (!existing) {
-      await insertGlossaryEntry(notebookId, termId, excerptsHash, summary);
+      await createGlossaryEntry(notebookId, termId, excerptsHash, summary);
     } else {
       await updateGlossaryEntry(existing.id, excerptsHash, summary);
     }

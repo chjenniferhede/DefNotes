@@ -12,6 +12,26 @@ import {
 } from "../lib/store-notepage";
 import type { Page as PageType } from "../data/types";
 import "./notepage.css";
+import {
+  FormatBold,
+  FormatItalic,
+  FormatStrikethrough,
+  Code,
+  FormatClear,
+  ShortText,
+  FormatListBulleted,
+  FormatListNumbered,
+  DataObject,
+  FormatQuote,
+  HorizontalRule,
+  FormatAlignLeft,
+  FormatAlignCenter,
+  FormatAlignRight,
+  FormatAlignJustify,
+  Undo,
+  Redo,
+  KeyboardReturn,
+} from "@mui/icons-material";
 
 interface NotePageProps {
   page?: PageType | null;
@@ -61,32 +81,36 @@ function MenuBar({ editor }: { editor: Editor }) {
           onClick={() => editor.chain().focus().toggleBold().run()}
           disabled={!editorState.canBold}
           className={editorState.isBold ? "is-active" : ""}
+          title="Bold"
         >
-          Bold
+          <FormatBold />
         </button>
         <button
           onClick={() => editor.chain().focus().toggleItalic().run()}
           disabled={!editorState.canItalic}
           className={editorState.isItalic ? "is-active" : ""}
+          title="Italic"
         >
-          Italic
+          <FormatItalic />
         </button>
         <button
           onClick={() => editor.chain().focus().toggleStrike().run()}
           disabled={!editorState.canStrike}
           className={editorState.isStrike ? "is-active" : ""}
+          title="Strikethrough"
         >
-          Strike
+          <FormatStrikethrough />
         </button>
         <button
           onClick={() => editor.chain().focus().toggleCode().run()}
           disabled={!editorState.canCode}
           className={editorState.isCode ? "is-active" : ""}
+          title="Inline Code"
         >
-          Code
+          <Code />
         </button>
-        <button onClick={() => editor.chain().focus().unsetAllMarks().run()}>
-          Clear marks
+        <button onClick={() => editor.chain().focus().unsetAllMarks().run()} title="Clear marks">
+          <FormatClear />
         </button>
         <button onClick={() => editor.chain().focus().clearNodes().run()}>
           Clear nodes
@@ -94,8 +118,9 @@ function MenuBar({ editor }: { editor: Editor }) {
         <button
           onClick={() => editor.chain().focus().setParagraph().run()}
           className={editorState.isParagraph ? "is-active" : ""}
+          title="Paragraph"
         >
-          Paragraph
+          <ShortText />
         </button>
         <button
           onClick={() =>
@@ -148,70 +173,81 @@ function MenuBar({ editor }: { editor: Editor }) {
         <button
           onClick={() => editor.chain().focus().toggleBulletList().run()}
           className={editorState.isBulletList ? "is-active" : ""}
+          title="Bullet list"
         >
-          Bullet list
+          <FormatListBulleted />
         </button>
         <button
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
           className={editorState.isOrderedList ? "is-active" : ""}
+          title="Numbered list"
         >
-          Ordered list
+          <FormatListNumbered />
         </button>
         <button
           onClick={() => editor.chain().focus().toggleCodeBlock().run()}
           className={editorState.isCodeBlock ? "is-active" : ""}
+          title="Code block"
         >
-          Code block
+          <DataObject />
         </button>
         <button
           onClick={() => editor.chain().focus().toggleBlockquote().run()}
           className={editorState.isBlockquote ? "is-active" : ""}
+          title="Blockquote"
         >
-          Blockquote
+          <FormatQuote />
         </button>
         <button
           onClick={() => editor.chain().focus().setHorizontalRule().run()}
+          title="Horizontal rule"
         >
-          Horizontal rule
+          <HorizontalRule />
         </button>
-        <button onClick={() => editor.chain().focus().setHardBreak().run()}>
-          Hard break
+        <button onClick={() => editor.chain().focus().setHardBreak().run()} title="Line break">
+          <KeyboardReturn />
         </button>
         <button
           onClick={() => editor.chain().focus().setTextAlign("left").run()}
           className={editorState.isAlignLeft ? "is-active" : ""}
+          title="Align Left"
         >
-          Align Left
+          <FormatAlignLeft />
         </button>
         <button
           onClick={() => editor.chain().focus().setTextAlign("center").run()}
           className={editorState.isAlignCenter ? "is-active" : ""}
+          title="Align Center"
         >
-          Align Center
+          <FormatAlignCenter />
         </button>
         <button
           onClick={() => editor.chain().focus().setTextAlign("right").run()}
           className={editorState.isAlignRight ? "is-active" : ""}
+          title="Align Right"
         >
-          Align Right
+          <FormatAlignRight />
         </button>
         <button
           onClick={() => editor.chain().focus().setTextAlign("justify").run()}
           className={editorState.isAlignJustify ? "is-active" : ""}
+          title="Justify"
         >
-          Justify
+          <FormatAlignJustify />
         </button>
         <button
           onClick={() => editor.chain().focus().undo().run()}
           disabled={!editorState.canUndo}
+          title="Undo"
         >
-          Undo
+          <Undo />
         </button>
         <button
           onClick={() => editor.chain().focus().redo().run()}
           disabled={!editorState.canRedo}
+          title="Redo"
         >
-          Redo
+          <Redo />
         </button>
       </div>
     </div>

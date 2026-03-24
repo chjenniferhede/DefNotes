@@ -1,10 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
-import dotenv from "dotenv";
+import { env } from "../env.js";
 
-dotenv.config();
-console.log("GEMINI_API_KEY is set:", !!process.env.GEMINI_API_KEY);
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const ai = new GoogleGenAI({ apiKey: env.GEMINI_API_KEY });
 
 // Summarizes term contexts using Gemini AI
 export async function summarizeTermContexts(
@@ -19,11 +16,10 @@ export async function summarizeTermContexts(
     Do NOT add external knowledge.
     Do NOT invent facts.
     Use the given entries only.
-    Present in the format of: 
-    <Term>
+    Present in full sentence in the format of:
     - Bullet point 1
     - Bullet point 2
-    ... 
+    ...
 
     Term: ${term}
 

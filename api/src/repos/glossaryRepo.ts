@@ -1,5 +1,5 @@
 import { db } from "../db/index.js";
-import { glossaryEntry } from "../db/schema.js";
+import { glossaryEntry, terms } from "../db/schema.js";
 import { eq, and } from "drizzle-orm";
 
 export async function getGlossaryEntry(termId: number, notebookId: number) {
@@ -15,7 +15,7 @@ export async function getGlossaryEntry(termId: number, notebookId: number) {
   return row ?? null;
 }
 
-export async function insertGlossaryEntry(
+export async function createGlossaryEntry(
   notebookId: number,
   termId: number,
   sourceHash: string,
@@ -39,8 +39,16 @@ export async function updateGlossaryEntry(
 
 export async function getEntriesByNotebook(notebookId: number) {
   const rows = await db
-    .select()
+    .select({
+      id: glossaryEntry.id,
+      notebookId: glossaryEntry.notebookId,
+      termId: glossaryEntry.termId,
+      sourceHash: glossaryEntry.sourceHash,
+      content: glossaryEntry.content,
+      term: terms.term,
+    })
     .from(glossaryEntry)
+    .leftJoin(terms, eq(glossaryEntry.termId, terms.id))
     .where(eq(glossaryEntry.notebookId, notebookId));
   return rows;
 }

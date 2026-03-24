@@ -2,6 +2,7 @@ import type {
   Notebook,
   Page,
   GlossaryEntry,
+  Document,
   CreateNotebookPayload,
   UpdateNotebookPayload,
   CreatePagePayload,
@@ -104,6 +105,31 @@ export async function deletePage(
     method: "DELETE",
   });
   if (!res.ok) throw new Error("Failed to delete page");
+}
+
+export async function getDocuments(
+  notebookId: string | number,
+): Promise<Document[]> {
+  const res = await fetch(`${notebooksBase()}/${notebookId}/documents`);
+  if (!res.ok) throw new Error("Failed to fetch documents");
+  return res.json();
+}
+
+export async function uploadDocument(
+  notebookId: string | number,
+  file: File,
+): Promise<{ documentId: number; status: string }> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const res = await fetch(`${notebooksBase()}/${notebookId}/documents`, {
+    method: "POST",
+    body: formData,
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => "Upload failed");
+    throw new Error(text);
+  }
+  return res.json();
 }
 
 export async function getGlossaryEntries(

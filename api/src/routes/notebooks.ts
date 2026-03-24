@@ -1,3 +1,4 @@
+import { Hono } from "hono";
 import { db } from "../db/index.js";
 import { notebook, page } from "../db/schema.js";
 import { eq, desc } from "drizzle-orm";
@@ -6,11 +7,13 @@ import {
   notebookUpdateSchema,
   pageCreateSchema,
   pageUpdateSchema,
-} from "../lib/validators.js";
-import { collectTermChanges } from "../domain/terms.js";
-import { maybeRunGlossaryUpdates } from "../domain/glossary-update.js";
+} from "../services/validators.js";
+import { collectTermChanges } from "../services/terms.js";
+import { maybeRunGlossaryUpdates } from "../services/glossaryUpdate.js";
 
-export async function listNotebooks(c: any) {
+const app = new Hono();
+
+app.get("/", async (c) => {
   const includePages = c.req.query("includePages");
   const nbs = await db.select().from(notebook);
 
@@ -25,16 +28,16 @@ export async function listNotebooks(c: any) {
     results.push({ ...nb, pages });
   }
   return c.json(results);
-}
+});
 
-export async function getNotebook(c: any) {
+app.get("/:id", async (c) => {
   const id = Number(c.req.param("id"));
   const [nb] = await db.select().from(notebook).where(eq(notebook.id, id));
   if (!nb) return c.text("Not found", 404);
   return c.json(nb);
-}
+});
 
-export async function createNotebook(c: any) {
+app.post("/", async (c) => {
   let body: any;
   try {
     body = await c.req.json();
@@ -57,9 +60,9 @@ export async function createNotebook(c: any) {
     .orderBy(desc(notebook.id))
     .limit(1);
   return c.json(created[0]);
-}
+});
 
-export async function updateNotebook(c: any) {
+app.put("/:id", async (c) => {
   const id = Number(c.req.param("id"));
   let body: any;
   try {
@@ -78,24 +81,25 @@ export async function updateNotebook(c: any) {
     .where(eq(notebook.id, id));
   const [updated] = await db.select().from(notebook).where(eq(notebook.id, id));
   return c.json(updated);
-}
+});
 
-export async function deleteNotebook(c: any) {
+app.delete("/:id", async (c) => {
   const id = Number(c.req.param("id"));
   await db.delete(notebook).where(eq(notebook.id, id));
   return c.text("Deleted");
-}
+});
 
-export async function listPages(c: any) {
+// Pages
+app.get("/:id/pages", async (c) => {
   const notebookId = Number(c.req.param("id"));
   const pages = await db
     .select()
     .from(page)
     .where(eq(page.notebookId, notebookId));
   return c.json(pages);
-}
+});
 
-export async function createPage(c: any) {
+app.post("/:id/pages", async (c) => {
   const notebookId = Number(c.req.param("id"));
   let body: any;
   try {
@@ -132,16 +136,16 @@ export async function createPage(c: any) {
     console.error("Error extracting/saving terms after page create", err);
   }
   return c.json(created[0]);
-}
+});
 
-export async function getPage(c: any) {
+app.get("/:id/pages/:pageId", async (c) => {
   const pageId = Number(c.req.param("pageId"));
   const [p] = await db.select().from(page).where(eq(page.id, pageId));
   if (!p) return c.text("Not found", 404);
   return c.json(p);
-}
+});
 
-export async function updatePage(c: any) {
+app.put("/:id/pages/:pageId", async (c) => {
   const pageId = Number(c.req.param("pageId"));
   const notebookId = Number(c.req.param("id"));
   let body: any;
@@ -179,12 +183,12 @@ export async function updatePage(c: any) {
     console.error("DB update error for page", pageId, err);
     return c.json({ error: "Internal server error" }, 500);
   }
-}
+});
 
-export async function deletePage(c: any) {
+app.delete("/:id/pages/:pageId", async (c) => {
   const pageId = Number(c.req.param("pageId"));
   await db.delete(page).where(eq(page.id, pageId));
   return c.text("Deleted");
-}
+});
 
-export default null;
+export default app;

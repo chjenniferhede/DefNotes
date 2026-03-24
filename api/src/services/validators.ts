@@ -21,9 +21,15 @@ const pageUpdateSchema = z.object({
   explicitSave: z.boolean().optional(),
 });
 
+const documentSearchSchema = z.object({
+  query: z.string().min(1).max(1000),
+  topK: z.coerce.number().int().min(1).max(20).default(5),
+});
+
 export {
   notebookCreateSchema,
   notebookUpdateSchema,
   pageCreateSchema,
   pageUpdateSchema,
+  documentSearchSchema,
 };

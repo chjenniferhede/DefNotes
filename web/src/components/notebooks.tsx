@@ -10,8 +10,10 @@ import {
 } from "@/components/ui/accordion";
 import Page from "./page";
 import GlossaryPage from "./glossary-page";
+import UploadPdfDialog from "./upload-pdf-dialog";
 import type { Page as PageType } from "../data/types";
 import { useSelection } from "../hooks/use-selection";
+import { getDocuments } from "../data/api";
 
 interface NotebooksProps {
   onAddNotebook: () => void;
@@ -26,6 +28,8 @@ const Notebooks = ({ onAddPage, onEditNotebook }: NotebooksProps) => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draftTitle, setDraftTitle] = useState<string>("");
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const [hasDocByNotebook, setHasDocByNotebook] = useState<Record<string, boolean>>({});
+  const [uploadDialogId, setUploadDialogId] = useState<string | null>(null);
 
   const startEditing = (notebook: NotebookType, e: React.MouseEvent) => {
     e.preventDefault();
@@ -56,9 +60,27 @@ const Notebooks = ({ onAddPage, onEditNotebook }: NotebooksProps) => {
     setDraftTitle("");
   };
 
+  const handleAccordionChange = async (notebookId: string | undefined) => {
+    if (!notebookId || hasDocByNotebook[notebookId] !== undefined) return;
+    try {
+      const docs = await getDocuments(notebookId);
+      setHasDocByNotebook((prev) => ({ ...prev, [notebookId]: docs.length > 0 }));
+    } catch {}
+  };
+
   return (
+    <>
+    {uploadDialogId && (
+      <UploadPdfDialog
+        notebookId={uploadDialogId}
+        onClose={() => setUploadDialogId(null)}
+        onSuccess={() =>
+          setHasDocByNotebook((prev) => ({ ...prev, [uploadDialogId]: true }))
+        }
+      />
+    )}
     <div className="overflow-auto mt-3">
-      <Accordion type="single" collapsible className="w-full space-y-2">
+      <Accordion type="single" collapsible className="w-full space-y-2" onValueChange={handleAccordionChange}>
         {notebooks.map((nb) => {
           const isSelected = isNotebookSelected(nb.id);
           return (
@@ -110,6 +132,14 @@ const Notebooks = ({ onAddPage, onEditNotebook }: NotebooksProps) => {
                       New Page
                     </button>
                   </li>
+                  <li>
+                    <button
+                      className="text-sm text-left w-full px-2 py-1 text-green-600 border border-green-300 bg-green-50 hover:bg-green-100 rounded-none"
+                      onClick={() => setUploadDialogId(nb.id)}
+                    >
+                      {hasDocByNotebook[nb.id] ? "Change PDF" : "Upload PDF"}
+                    </button>
+                  </li>
                   <GlossaryPage notebookId={nb.id} />
                   {nb.pages.length === 0 && (
                     <li className="text-sm text-gray-400">(no pages)</li>
@@ -129,6 +159,7 @@ const Notebooks = ({ onAddPage, onEditNotebook }: NotebooksProps) => {
         })}
       </Accordion>
     </div>
+    </>
   );
 };
 
